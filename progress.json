@@ -2,7 +2,7 @@
   "schema_version": 1,
   "project": "code-impact-migration-stage1",
   "created_at": "2026-11-12T19:38:55+00:00",
-  "updated_at": "2026-11-12T20:36:36+00:00",
+  "updated_at": "2026-11-12T20:36:54+00:00",
   "config": {
     "base_branch": "dev",
     "work_branch": null,
@@ -13,23 +13,21 @@
     "baseline_commit_approved": true,
     "stable_branch": "main",
     "branch_model": "feature/<task-id>-<description> from dev, merged --no-ff into dev; dev -> main only on user-approved release",
-    "active_branch": "feature/T001-workspace-safety-policy",
+    "active_branch": "dev",
     "allow_network_dev": "any network use during development (docs, metadata, installs); analyzer stays offline"
   },
-  "current_task": {
-    "id": "T001",
-    "stage": "testing",
-    "attempt": 2,
-    "started_at": "2026-11-12T19:49:09+00:00"
-  },
+  "current_task": null,
   "tasks": {
     "T001": {
       "status": "done",
       "attempts": 2,
-      "stage": "committing",
+      "stage": null,
       "blocked_reason": null,
       "blocking_questions": [],
-      "commits": [],
+      "commits": [
+        "1b071c336696b0d2bdf5e2872a2219f212e2331b",
+        "1a70e70647a15e10d6591c5230e684aa6079cec4"
+      ],
       "evidence": [
         ".venv/bin/pytest -q -> 127 passed, 0 skipped",
         ".venv/bin/mypy --strict src tests -> no issues in 8 files",
@@ -451,13 +449,16 @@
       "completed_at": null
     }
   },
-  "completed": [],
-  "blocked": [],
-  "ready": [
+  "completed": [
     "T001"
   ],
+  "blocked": [],
+  "ready": [
+    "T002",
+    "T003",
+    "T004"
+  ],
   "outstanding": [
-    "T001",
     "T002",
     "T003",
     "T004",
@@ -571,15 +572,15 @@
   ],
   "warnings": [],
   "last_checkpoint": {
-    "at": "2026-11-12T19:39:21+00:00",
+    "at": "2026-11-12T20:36:54+00:00",
     "task": null,
-    "commit": "0d4d08c03e0bbea737d150a0228d1bab6998ea52",
-    "note": "waiting on user: Q01-Q12 and 2 approvals"
+    "commit": "1b071c336696b0d2bdf5e2872a2219f212e2331b",
+    "note": "T001 merged into dev"
   },
-  "last_reconciled_at": "2026-11-12T19:48:41+00:00",
+  "last_reconciled_at": "2026-11-12T20:36:54+00:00",
   "question_impact": {},
   "git": {
     "branch": "dev",
-    "head": "0d4d08c03e0bbea737d150a0228d1bab6998ea52"
+    "head": "1b071c336696b0d2bdf5e2872a2219f212e2331b"
   }
 }

@@ -1,0 +1,1075 @@
+{
+  "schema_version": "1.0",
+  "project": "code-impact-migration-stage1",
+  "status_values": [
+    "pending",
+    "in_progress",
+    "blocked",
+    "done",
+    "failed"
+  ],
+  "policy": {
+    "ready_when": "all depends_on done AND no unresolved blocking open_questions after user-approved triage",
+    "question_handling": "open_questions are review gates, not automatic blockers for unrelated work; populate blocked_by when a task cannot safely proceed",
+    "completion": "done requires test evidence, documentation, decisions log and traceability update",
+    "max_concurrent_tasks": 1
+  },
+  "tasks": [
+    {
+      "id": "T001",
+      "title": "Workspace scope and safety policy",
+      "phase": "P0",
+      "status": "blocked",
+      "depends_on": [],
+      "requirements": [
+        "R01",
+        "R12"
+      ],
+      "acceptance_criteria": [
+        "AC-01",
+        "AC-11"
+      ],
+      "open_questions": [
+        "Q09"
+      ],
+      "blocked_by": [
+        "Q09"
+      ],
+      "description": "Implement and verify workspace scope and safety policy according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
+      "deliverables": [
+        "tests/test_t001.py",
+        "relevant implementation and documentation"
+      ],
+      "verification": [
+        "focused automated tests with positive, negative and unknown fixtures",
+        "review graph evidence and stable output where applicable"
+      ],
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "T002",
+      "title": "Python syntax and environment support matrix",
+      "phase": "P0",
+      "status": "blocked",
+      "depends_on": [
+        "T001"
+      ],
+      "requirements": [
+        "R01",
+        "R02"
+      ],
+      "acceptance_criteria": [
+        "AC-01"
+      ],
+      "open_questions": [
+        "Q01"
+      ],
+      "blocked_by": [
+        "Q01"
+      ],
+      "description": "Implement and verify python syntax and environment support matrix according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
+      "deliverables": [
+        "tests/test_t002.py",
+        "relevant implementation and documentation"
+      ],
+      "verification": [
+        "focused automated tests with positive, negative and unknown fixtures",
+        "review graph evidence and stable output where applicable"
+      ],
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "T003",
+      "title": "Package architecture, tooling and licenses",
+      "phase": "P0",
+      "status": "blocked",
+      "depends_on": [
+        "T001"
+      ],
+      "requirements": [
+        "R12"
+      ],
+      "acceptance_criteria": [
+        "AC-12"
+      ],
+      "open_questions": [
+        "Q07"
+      ],
+      "blocked_by": [
+        "Q07"
+      ],
+      "description": "Implement and verify package architecture, tooling and licenses according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
+      "deliverables": [
+        "tests/test_t003.py",
+        "relevant implementation and documentation"
+      ],
+      "verification": [
+        "focused automated tests with positive, negative and unknown fixtures",
+        "review graph evidence and stable output where applicable"
+      ],
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "T004",
+      "title": "Graph schema, IDs, provenance and uncertainty",
+      "phase": "P0",
+      "status": "blocked",
+      "depends_on": [
+        "T001"
+      ],
+      "requirements": [
+        "R03",
+        "R04"
+      ],
+      "acceptance_criteria": [
+        "AC-01",
+        "AC-04"
+      ],
+      "open_questions": [
+        "Q11"
+      ],
+      "blocked_by": [
+        "Q11"
+      ],
+      "description": "Implement and verify graph schema, ids, provenance and uncertainty according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
+      "deliverables": [
+        "tests/test_t004.py",
+        "relevant implementation and documentation"
+      ],
+      "verification": [
+        "focused automated tests with positive, negative and unknown fixtures",
+        "review graph evidence and stable output where applicable"
+      ],
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "T005",
+      "title": "Test harness and fixture corpus",
+      "phase": "P0",
+      "status": "pending",
+      "depends_on": [
+        "T002",
+        "T004"
+      ],
+      "requirements": [
+        "R12"
+      ],
+      "acceptance_criteria": [
+        "AC-11",
+        "AC-12"
+      ],
+      "open_questions": [],
+      "blocked_by": [],
+      "description": "Implement and verify test harness and fixture corpus according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
+      "deliverables": [
+        "tests/test_t005.py",
+        "relevant implementation and documentation"
+      ],
+      "verification": [
+        "focused automated tests with positive, negative and unknown fixtures",
+        "review graph evidence and stable output where applicable"
+      ],
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "T006",
+      "title": "Safe discovery and syntax parser",
+      "phase": "P1",
+      "status": "blocked",
+      "depends_on": [
+        "T002",
+        "T005"
+      ],
+      "requirements": [
+        "R01",
+        "R02"
+      ],
+      "acceptance_criteria": [
+        "AC-01",
+        "AC-11"
+      ],
+      "open_questions": [
+        "Q01"
+      ],
+      "blocked_by": [
+        "Q01"
+      ],
+      "description": "Implement and verify safe discovery and syntax parser according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
+      "deliverables": [
+        "tests/test_t006.py",
+        "relevant implementation and documentation"
+      ],
+      "verification": [
+        "focused automated tests with positive, negative and unknown fixtures",
+        "review graph evidence and stable output where applicable"
+      ],
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "T007",
+      "title": "Scopes, bindings and symbol definitions",
+      "phase": "P1",
+      "status": "blocked",
+      "depends_on": [
+        "T006"
+      ],
+      "requirements": [
+        "R02",
+        "R03"
+      ],
+      "acceptance_criteria": [
+        "AC-03"
+      ],
+      "open_questions": [
+        "Q09"
+      ],
+      "blocked_by": [
+        "Q09"
+      ],
+      "description": "Implement and verify scopes, bindings and symbol definitions according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
+      "deliverables": [
+        "tests/test_t007.py",
+        "relevant implementation and documentation"
+      ],
+      "verification": [
+        "focused automated tests with positive, negative and unknown fixtures",
+        "review graph evidence and stable output where applicable"
+      ],
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "T008",
+      "title": "Import resolution and distribution mapping",
+      "phase": "P1",
+      "status": "pending",
+      "depends_on": [
+        "T007"
+      ],
+      "requirements": [
+        "R05"
+      ],
+      "acceptance_criteria": [
+        "AC-02"
+      ],
+      "open_questions": [],
+      "blocked_by": [],
+      "description": "Implement and verify import resolution and distribution mapping according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
+      "deliverables": [
+        "tests/test_t008.py",
+        "relevant implementation and documentation"
+      ],
+      "verification": [
+        "focused automated tests with positive, negative and unknown fixtures",
+        "review graph evidence and stable output where applicable"
+      ],
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "T009",
+      "title": "Classes, methods, inheritance and decorators",
+      "phase": "P1",
+      "status": "pending",
+      "depends_on": [
+        "T007"
+      ],
+      "requirements": [
+        "R06"
+      ],
+      "acceptance_criteria": [
+        "AC-03"
+      ],
+      "open_questions": [],
+      "blocked_by": [],
+      "description": "Implement and verify classes, methods, inheritance and decorators according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
+      "deliverables": [
+        "tests/test_t009.py",
+        "relevant implementation and documentation"
+      ],
+      "verification": [
+        "focused automated tests with positive, negative and unknown fixtures",
+        "review graph evidence and stable output where applicable"
+      ],
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "T010",
+      "title": "Source evidence and unresolved diagnostics",
+      "phase": "P1",
+      "status": "pending",
+      "depends_on": [
+        "T008",
+        "T009"
+      ],
+      "requirements": [
+        "R04"
+      ],
+      "acceptance_criteria": [
+        "AC-02",
+        "AC-03"
+      ],
+      "open_questions": [],
+      "blocked_by": [],
+      "description": "Implement and verify source evidence and unresolved diagnostics according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
+      "deliverables": [
+        "tests/test_t010.py",
+        "relevant implementation and documentation"
+      ],
+      "verification": [
+        "focused automated tests with positive, negative and unknown fixtures",
+        "review graph evidence and stable output where applicable"
+      ],
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "T011",
+      "title": "Reference and call site extraction",
+      "phase": "P2",
+      "status": "pending",
+      "depends_on": [
+        "T010"
+      ],
+      "requirements": [
+        "R07"
+      ],
+      "acceptance_criteria": [
+        "AC-04"
+      ],
+      "open_questions": [],
+      "blocked_by": [],
+      "description": "Implement and verify reference and call site extraction according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
+      "deliverables": [
+        "tests/test_t011.py",
+        "relevant implementation and documentation"
+      ],
+      "verification": [
+        "focused automated tests with positive, negative and unknown fixtures",
+        "review graph evidence and stable output where applicable"
+      ],
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "T012",
+      "title": "Bounded type/points-to and dispatch resolution",
+      "phase": "P2",
+      "status": "pending",
+      "depends_on": [
+        "T011",
+        "T009"
+      ],
+      "requirements": [
+        "R07"
+      ],
+      "acceptance_criteria": [
+        "AC-04"
+      ],
+      "open_questions": [],
+      "blocked_by": [],
+      "description": "Implement and verify bounded type/points-to and dispatch resolution according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
+      "deliverables": [
+        "tests/test_t012.py",
+        "relevant implementation and documentation"
+      ],
+      "verification": [
+        "focused automated tests with positive, negative and unknown fixtures",
+        "review graph evidence and stable output where applicable"
+      ],
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "T013",
+      "title": "Def-use and argument/return propagation",
+      "phase": "P2",
+      "status": "pending",
+      "depends_on": [
+        "T012"
+      ],
+      "requirements": [
+        "R08"
+      ],
+      "acceptance_criteria": [
+        "AC-05"
+      ],
+      "open_questions": [],
+      "blocked_by": [],
+      "description": "Implement and verify def-use and argument/return propagation according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
+      "deliverables": [
+        "tests/test_t013.py",
+        "relevant implementation and documentation"
+      ],
+      "verification": [
+        "focused automated tests with positive, negative and unknown fixtures",
+        "review graph evidence and stable output where applicable"
+      ],
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "T014",
+      "title": "Dynamic Python uncertainty recognizers",
+      "phase": "P2",
+      "status": "pending",
+      "depends_on": [
+        "T012"
+      ],
+      "requirements": [
+        "R04",
+        "R07"
+      ],
+      "acceptance_criteria": [
+        "AC-04"
+      ],
+      "open_questions": [],
+      "blocked_by": [],
+      "description": "Implement and verify dynamic python uncertainty recognizers according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
+      "deliverables": [
+        "tests/test_t014.py",
+        "relevant implementation and documentation"
+      ],
+      "verification": [
+        "focused automated tests with positive, negative and unknown fixtures",
+        "review graph evidence and stable output where applicable"
+      ],
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "T015",
+      "title": "Semantic graph golden/negative tests",
+      "phase": "P2",
+      "status": "pending",
+      "depends_on": [
+        "T013",
+        "T014"
+      ],
+      "requirements": [
+        "R07",
+        "R08",
+        "R12"
+      ],
+      "acceptance_criteria": [
+        "AC-04",
+        "AC-05"
+      ],
+      "open_questions": [],
+      "blocked_by": [],
+      "description": "Implement and verify semantic graph golden/negative tests according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
+      "deliverables": [
+        "tests/test_t015.py",
+        "relevant implementation and documentation"
+      ],
+      "verification": [
+        "focused automated tests with positive, negative and unknown fixtures",
+        "review graph evidence and stable output where applicable"
+      ],
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "T016",
+      "title": "Environment tuple and marker evaluation",
+      "phase": "P3",
+      "status": "blocked",
+      "depends_on": [
+        "T005"
+      ],
+      "requirements": [
+        "R09"
+      ],
+      "acceptance_criteria": [
+        "AC-06"
+      ],
+      "open_questions": [
+        "Q06"
+      ],
+      "blocked_by": [
+        "Q06"
+      ],
+      "description": "Implement and verify environment tuple and marker evaluation according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
+      "deliverables": [
+        "tests/test_t016.py",
+        "relevant implementation and documentation"
+      ],
+      "verification": [
+        "focused automated tests with positive, negative and unknown fixtures",
+        "review graph evidence and stable output where applicable"
+      ],
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "T017",
+      "title": "Declared dependency manifest adapters",
+      "phase": "P3",
+      "status": "blocked",
+      "depends_on": [
+        "T016"
+      ],
+      "requirements": [
+        "R09"
+      ],
+      "acceptance_criteria": [
+        "AC-06"
+      ],
+      "open_questions": [
+        "Q04"
+      ],
+      "blocked_by": [
+        "Q04"
+      ],
+      "description": "Implement and verify declared dependency manifest adapters according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
+      "deliverables": [
+        "tests/test_t017.py",
+        "relevant implementation and documentation"
+      ],
+      "verification": [
+        "focused automated tests with positive, negative and unknown fixtures",
+        "review graph evidence and stable output where applicable"
+      ],
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "T018",
+      "title": "Lock and installed distribution metadata",
+      "phase": "P3",
+      "status": "blocked",
+      "depends_on": [
+        "T017"
+      ],
+      "requirements": [
+        "R09"
+      ],
+      "acceptance_criteria": [
+        "AC-06"
+      ],
+      "open_questions": [
+        "Q04"
+      ],
+      "blocked_by": [
+        "Q04"
+      ],
+      "description": "Implement and verify lock and installed distribution metadata according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
+      "deliverables": [
+        "tests/test_t018.py",
+        "relevant implementation and documentation"
+      ],
+      "verification": [
+        "focused automated tests with positive, negative and unknown fixtures",
+        "review graph evidence and stable output where applicable"
+      ],
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "T019",
+      "title": "Versioned API inventory and stubs",
+      "phase": "P3",
+      "status": "blocked",
+      "depends_on": [
+        "T018",
+        "T008"
+      ],
+      "requirements": [
+        "R10"
+      ],
+      "acceptance_criteria": [
+        "AC-07"
+      ],
+      "open_questions": [
+        "Q05",
+        "Q10"
+      ],
+      "blocked_by": [
+        "Q05",
+        "Q10"
+      ],
+      "description": "Implement and verify versioned api inventory and stubs according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
+      "deliverables": [
+        "tests/test_t019.py",
+        "relevant implementation and documentation"
+      ],
+      "verification": [
+        "focused automated tests with positive, negative and unknown fixtures",
+        "review graph evidence and stable output where applicable"
+      ],
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "T020",
+      "title": "Compatibility and deprecated API rules",
+      "phase": "P3",
+      "status": "blocked",
+      "depends_on": [
+        "T019"
+      ],
+      "requirements": [
+        "R10"
+      ],
+      "acceptance_criteria": [
+        "AC-07"
+      ],
+      "open_questions": [
+        "Q06",
+        "Q10"
+      ],
+      "blocked_by": [
+        "Q06",
+        "Q10"
+      ],
+      "description": "Implement and verify compatibility and deprecated api rules according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
+      "deliverables": [
+        "tests/test_t020.py",
+        "relevant implementation and documentation"
+      ],
+      "verification": [
+        "focused automated tests with positive, negative and unknown fixtures",
+        "review graph evidence and stable output where applicable"
+      ],
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "T021",
+      "title": "Compatibility fixture matrix and evidence",
+      "phase": "P3",
+      "status": "blocked",
+      "depends_on": [
+        "T020"
+      ],
+      "requirements": [
+        "R09",
+        "R10"
+      ],
+      "acceptance_criteria": [
+        "AC-06",
+        "AC-07"
+      ],
+      "open_questions": [
+        "Q05"
+      ],
+      "blocked_by": [
+        "Q05"
+      ],
+      "description": "Implement and verify compatibility fixture matrix and evidence according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
+      "deliverables": [
+        "tests/test_t021.py",
+        "relevant implementation and documentation"
+      ],
+      "verification": [
+        "focused automated tests with positive, negative and unknown fixtures",
+        "review graph evidence and stable output where applicable"
+      ],
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "T022",
+      "title": "SQLite graph store and indexed traversal",
+      "phase": "P4",
+      "status": "blocked",
+      "depends_on": [
+        "T004",
+        "T010"
+      ],
+      "requirements": [
+        "R03",
+        "R11"
+      ],
+      "acceptance_criteria": [
+        "AC-01",
+        "AC-10"
+      ],
+      "open_questions": [
+        "Q11"
+      ],
+      "blocked_by": [
+        "Q11"
+      ],
+      "description": "Implement and verify sqlite graph store and indexed traversal according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
+      "deliverables": [
+        "tests/test_t022.py",
+        "relevant implementation and documentation"
+      ],
+      "verification": [
+        "focused automated tests with positive, negative and unknown fixtures",
+        "review graph evidence and stable output where applicable"
+      ],
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "T023",
+      "title": "Transactional snapshots and incremental invalidation",
+      "phase": "P4",
+      "status": "pending",
+      "depends_on": [
+        "T022",
+        "T015",
+        "T021"
+      ],
+      "requirements": [
+        "R11"
+      ],
+      "acceptance_criteria": [
+        "AC-09"
+      ],
+      "open_questions": [],
+      "blocked_by": [],
+      "description": "Implement and verify transactional snapshots and incremental invalidation according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
+      "deliverables": [
+        "tests/test_t023.py",
+        "relevant implementation and documentation"
+      ],
+      "verification": [
+        "focused automated tests with positive, negative and unknown fixtures",
+        "review graph evidence and stable output where applicable"
+      ],
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "T024",
+      "title": "Graph search, path and explanation queries",
+      "phase": "P4",
+      "status": "pending",
+      "depends_on": [
+        "T022",
+        "T015"
+      ],
+      "requirements": [
+        "R03",
+        "R04"
+      ],
+      "acceptance_criteria": [
+        "AC-08",
+        "AC-10"
+      ],
+      "open_questions": [],
+      "blocked_by": [],
+      "description": "Implement and verify graph search, path and explanation queries according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
+      "deliverables": [
+        "tests/test_t024.py",
+        "relevant implementation and documentation"
+      ],
+      "verification": [
+        "focused automated tests with positive, negative and unknown fixtures",
+        "review graph evidence and stable output where applicable"
+      ],
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "T025",
+      "title": "Impact traversal, risk categories and snapshot diff",
+      "phase": "P4",
+      "status": "blocked",
+      "depends_on": [
+        "T023",
+        "T024"
+      ],
+      "requirements": [
+        "R11"
+      ],
+      "acceptance_criteria": [
+        "AC-08",
+        "AC-09"
+      ],
+      "open_questions": [
+        "Q08"
+      ],
+      "blocked_by": [
+        "Q08"
+      ],
+      "description": "Implement and verify impact traversal, risk categories and snapshot diff according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
+      "deliverables": [
+        "tests/test_t025.py",
+        "relevant implementation and documentation"
+      ],
+      "verification": [
+        "focused automated tests with positive, negative and unknown fixtures",
+        "review graph evidence and stable output where applicable"
+      ],
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "T026",
+      "title": "CLI, JSON/GraphML export and optional read-only API",
+      "phase": "P4",
+      "status": "blocked",
+      "depends_on": [
+        "T024",
+        "T025"
+      ],
+      "requirements": [
+        "R03"
+      ],
+      "acceptance_criteria": [
+        "AC-10"
+      ],
+      "open_questions": [
+        "Q12"
+      ],
+      "blocked_by": [
+        "Q12"
+      ],
+      "description": "Implement and verify cli, json/graphml export and optional read-only api according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
+      "deliverables": [
+        "tests/test_t026.py",
+        "relevant implementation and documentation"
+      ],
+      "verification": [
+        "focused automated tests with positive, negative and unknown fixtures",
+        "review graph evidence and stable output where applicable"
+      ],
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "T027",
+      "title": "Optional lazy graph browser UI",
+      "phase": "P4",
+      "status": "blocked",
+      "depends_on": [
+        "T026"
+      ],
+      "requirements": [
+        "R03"
+      ],
+      "acceptance_criteria": [
+        "AC-10"
+      ],
+      "open_questions": [
+        "Q02"
+      ],
+      "blocked_by": [
+        "Q02"
+      ],
+      "description": "Implement and verify optional lazy graph browser ui according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
+      "deliverables": [
+        "tests/test_t027.py",
+        "relevant implementation and documentation"
+      ],
+      "verification": [
+        "focused automated tests with positive, negative and unknown fixtures",
+        "review graph evidence and stable output where applicable"
+      ],
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "T028",
+      "title": "Performance benchmarks and optimization",
+      "phase": "P5",
+      "status": "blocked",
+      "depends_on": [
+        "T026"
+      ],
+      "requirements": [
+        "R12"
+      ],
+      "acceptance_criteria": [
+        "AC-11"
+      ],
+      "open_questions": [
+        "Q03"
+      ],
+      "blocked_by": [
+        "Q03"
+      ],
+      "description": "Implement and verify performance benchmarks and optimization according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
+      "deliverables": [
+        "tests/test_t028.py",
+        "relevant implementation and documentation"
+      ],
+      "verification": [
+        "focused automated tests with positive, negative and unknown fixtures",
+        "review graph evidence and stable output where applicable"
+      ],
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "T029",
+      "title": "Security and deterministic regression suite",
+      "phase": "P5",
+      "status": "pending",
+      "depends_on": [
+        "T023",
+        "T026"
+      ],
+      "requirements": [
+        "R01",
+        "R12"
+      ],
+      "acceptance_criteria": [
+        "AC-09",
+        "AC-11"
+      ],
+      "open_questions": [],
+      "blocked_by": [],
+      "description": "Implement and verify security and deterministic regression suite according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
+      "deliverables": [
+        "tests/test_t029.py",
+        "relevant implementation and documentation"
+      ],
+      "verification": [
+        "focused automated tests with positive, negative and unknown fixtures",
+        "review graph evidence and stable output where applicable"
+      ],
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "T030",
+      "title": "CI and analyzer Docker image",
+      "phase": "P5",
+      "status": "pending",
+      "depends_on": [
+        "T028",
+        "T029"
+      ],
+      "requirements": [
+        "R12"
+      ],
+      "acceptance_criteria": [
+        "AC-11"
+      ],
+      "open_questions": [],
+      "blocked_by": [],
+      "description": "Implement and verify ci and analyzer docker image according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
+      "deliverables": [
+        "tests/test_t030.py",
+        "relevant implementation and documentation"
+      ],
+      "verification": [
+        "focused automated tests with positive, negative and unknown fixtures",
+        "review graph evidence and stable output where applicable"
+      ],
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "T031",
+      "title": "Architecture, user and limitation documentation",
+      "phase": "P5",
+      "status": "pending",
+      "depends_on": [
+        "T026",
+        "T021"
+      ],
+      "requirements": [
+        "R12"
+      ],
+      "acceptance_criteria": [
+        "AC-10",
+        "AC-12"
+      ],
+      "open_questions": [],
+      "blocked_by": [],
+      "description": "Implement and verify architecture, user and limitation documentation according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
+      "deliverables": [
+        "tests/test_t031.py",
+        "relevant implementation and documentation"
+      ],
+      "verification": [
+        "focused automated tests with positive, negative and unknown fixtures",
+        "review graph evidence and stable output where applicable"
+      ],
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "T032",
+      "title": "Traceability and decision log audit",
+      "phase": "P5",
+      "status": "pending",
+      "depends_on": [
+        "T030",
+        "T031"
+      ],
+      "requirements": [
+        "R12"
+      ],
+      "acceptance_criteria": [
+        "AC-12"
+      ],
+      "open_questions": [],
+      "blocked_by": [],
+      "description": "Implement and verify traceability and decision log audit according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
+      "deliverables": [
+        "tests/test_t032.py",
+        "relevant implementation and documentation"
+      ],
+      "verification": [
+        "focused automated tests with positive, negative and unknown fixtures",
+        "review graph evidence and stable output where applicable"
+      ],
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "T033",
+      "title": "Final end-to-end acceptance and release report",
+      "phase": "P5",
+      "status": "pending",
+      "depends_on": [
+        "T032"
+      ],
+      "requirements": [
+        "R01",
+        "R02",
+        "R03",
+        "R04",
+        "R05",
+        "R06",
+        "R07",
+        "R08",
+        "R09",
+        "R10",
+        "R11",
+        "R12"
+      ],
+      "acceptance_criteria": [
+        "AC-01",
+        "AC-02",
+        "AC-03",
+        "AC-04",
+        "AC-05",
+        "AC-06",
+        "AC-07",
+        "AC-08",
+        "AC-09",
+        "AC-10",
+        "AC-11",
+        "AC-12"
+      ],
+      "open_questions": [],
+      "blocked_by": [],
+      "description": "Implement and verify final end-to-end acceptance and release report according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
+      "deliverables": [
+        "tests/test_t033.py",
+        "relevant implementation and documentation"
+      ],
+      "verification": [
+        "focused automated tests with positive, negative and unknown fixtures",
+        "review graph evidence and stable output where applicable"
+      ],
+      "evidence": [],
+      "notes": ""
+    }
+  ]
+}

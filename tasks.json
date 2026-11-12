@@ -19,7 +19,7 @@
       "id": "T001",
       "title": "Workspace scope and safety policy",
       "phase": "P0",
-      "status": "pending",
+      "status": "done",
       "depends_on": [],
       "requirements": [
         "R01",
@@ -42,8 +42,18 @@
         "focused automated tests with positive, negative and unknown fixtures",
         "review graph evidence and stable output where applicable"
       ],
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        ".venv/bin/pytest -q -> 127 passed, 0 skipped",
+        ".venv/bin/mypy --strict src tests -> no issues in 8 files",
+        ".venv/bin/ruff check . -> All checks passed; ruff format --check -> 15 files formatted",
+        "mutation checks: escape/cap/sort/policy/namespace/limits mutations all caught; O_NOFOLLOW removal not caught (coverage gap)",
+        ".venv/bin/pytest -q -ra -> 150 passed, 1 skipped (tests/test_t001.py:837 APFS reason)",
+        ".venv/bin/mypy --strict src tests -> no issues in 8 files",
+        ".venv/bin/ruff check . / ruff format --check . -> clean",
+        "mutations M-F1,M1-M7 (exec in discover, O_NOFOLLOW file/dir, exclusion-before-resolution, target_excluded, cycle/alias, fd finally, _is_within) -> all caught with normal FAILED reporting",
+        "cross-process determinism: 5050-file tree, 3 subprocesses x 2 locations -> identical fingerprint; fd leak check clean across 8 configs"
+      ],
+      "notes": "Verified 2026-11-12: tester PASS + reviewer APPROVE on attempt 2. Workspace config + safe discovery (dir_fd traversal, directory links never traversed). D-0015-D-0027 (D-0025 supersedes D-0020). Non-blocking follow-ups logged in progress.json open_issues (O_BINARY fallback flag, docs wording on realpath lstat, fallback-mode dir swap -> T029, stale D-0020 refs). T003 to revisit backend/python floor/ruff rules (D-0017); editable install inert on CPython 3.12.3."
     },
     {
       "id": "T002",

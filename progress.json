@@ -2,7 +2,7 @@
   "schema_version": 1,
   "project": "code-impact-migration-stage1",
   "created_at": "2026-11-12T19:38:55+00:00",
-  "updated_at": "2026-11-12T19:48:41+00:00",
+  "updated_at": "2026-11-12T20:36:36+00:00",
   "config": {
     "base_branch": "dev",
     "work_branch": null,
@@ -12,20 +12,91 @@
     "allow_network": true,
     "baseline_commit_approved": true,
     "stable_branch": "main",
-    "branch_model": "feature/<task-id>-<description> from dev, merged --no-ff into dev; dev -> main only on user-approved release"
+    "branch_model": "feature/<task-id>-<description> from dev, merged --no-ff into dev; dev -> main only on user-approved release",
+    "active_branch": "feature/T001-workspace-safety-policy",
+    "allow_network_dev": "any network use during development (docs, metadata, installs); analyzer stays offline"
   },
-  "current_task": null,
+  "current_task": {
+    "id": "T001",
+    "stage": "testing",
+    "attempt": 2,
+    "started_at": "2026-11-12T19:49:09+00:00"
+  },
   "tasks": {
     "T001": {
-      "status": "pending",
-      "attempts": 0,
-      "stage": null,
+      "status": "done",
+      "attempts": 2,
+      "stage": "committing",
       "blocked_reason": null,
       "blocking_questions": [],
       "commits": [],
-      "evidence": [],
-      "history": [],
-      "completed_at": null
+      "evidence": [
+        ".venv/bin/pytest -q -> 127 passed, 0 skipped",
+        ".venv/bin/mypy --strict src tests -> no issues in 8 files",
+        ".venv/bin/ruff check . -> All checks passed; ruff format --check -> 15 files formatted",
+        "mutation checks: escape/cap/sort/policy/namespace/limits mutations all caught; O_NOFOLLOW removal not caught (coverage gap)",
+        ".venv/bin/pytest -q -ra -> 150 passed, 1 skipped (tests/test_t001.py:837 APFS reason)",
+        ".venv/bin/mypy --strict src tests -> no issues in 8 files",
+        ".venv/bin/ruff check . / ruff format --check . -> clean",
+        "mutations M-F1,M1-M7 (exec in discover, O_NOFOLLOW file/dir, exclusion-before-resolution, target_excluded, cycle/alias, fd finally, _is_within) -> all caught with normal FAILED reporting",
+        "cross-process determinism: 5050-file tree, 3 subprocesses x 2 locations -> identical fingerprint; fd leak check clean across 8 configs"
+      ],
+      "history": [
+        {
+          "at": "2026-11-12T20:06:41+00:00",
+          "kind": "developer",
+          "verdict": "COMPLETE",
+          "summary": "Package skeleton, workspace config, safe discovery, docs, D-0015..D-0023; dev-reported 127 passed, mypy/ruff clean",
+          "evidence": []
+        },
+        {
+          "at": "2026-11-12T20:14:30+00:00",
+          "kind": "reviewer",
+          "verdict": "REQUEST_CHANGES",
+          "summary": "R1 high: WITHIN_ROOT dir alias shadows real dir, canonical paths depend on link names (contradicts D-0020/docs); R2-R5 medium (excludes before symlink classification, dir TOCTOU overstated, AC-11 deferral undocumented, D-0014 edited in place); R6-R11 low/nit",
+          "evidence": []
+        },
+        {
+          "at": "2026-11-12T20:14:36+00:00",
+          "kind": "tester",
+          "verdict": "PASS",
+          "summary": "127 passed reproduced; mypy/ruff clean; AC-01/AC-11 T001 parts verified by probes and mutation checks; F1 medium: tripwire fixture causes pytest INTERNALERROR on failure",
+          "evidence": [
+            ".venv/bin/pytest -q -> 127 passed, 0 skipped",
+            ".venv/bin/mypy --strict src tests -> no issues in 8 files",
+            ".venv/bin/ruff check . -> All checks passed; ruff format --check -> 15 files formatted",
+            "mutation checks: escape/cap/sort/policy/namespace/limits mutations all caught; O_NOFOLLOW removal not caught (coverage gap)"
+          ]
+        },
+        {
+          "at": "2026-11-12T20:27:58+00:00",
+          "kind": "developer",
+          "verdict": "COMPLETE",
+          "summary": "Fix round: R1 (dir links never traversed, symlink_alias, D-0025 supersedes D-0020), R2, R3 (dir_fd traversal, D-0026), R4, F1, R6-R11 and coverage gaps; dev-reported 150 passed/1 skipped",
+          "evidence": []
+        },
+        {
+          "at": "2026-11-12T20:35:25+00:00",
+          "kind": "reviewer",
+          "verdict": "APPROVE",
+          "summary": "All 11 prior findings resolved; fd walker correct; D-0025-D-0027 complete; non-blocking: R1 medium O_BINARY missing in fallback flags (Windows), R2-R5 low (realpath lstat wording, per-dir listing memory, directories_visited mode diff, stale D-0020 refs), R6 nit",
+          "evidence": []
+        },
+        {
+          "at": "2026-11-12T20:36:36+00:00",
+          "kind": "tester",
+          "verdict": "PASS",
+          "summary": "Attempt 2: 150 passed/1 skipped (APFS non-UTF-8 name); mypy/ruff clean; all prior findings re-probed; 7 mutations caught; F1 medium docs wording (realpath lstats outside components), F2 low fallback-mode dir swap unprotected",
+          "evidence": [
+            ".venv/bin/pytest -q -ra -> 150 passed, 1 skipped (tests/test_t001.py:837 APFS reason)",
+            ".venv/bin/mypy --strict src tests -> no issues in 8 files",
+            ".venv/bin/ruff check . / ruff format --check . -> clean",
+            "mutations M-F1,M1-M7 (exec in discover, O_NOFOLLOW file/dir, exclusion-before-resolution, target_excluded, cycle/alias, fd finally, _is_within) -> all caught with normal FAILED reporting",
+            "cross-process determinism: 5050-file tree, 3 subprocesses x 2 locations -> identical fingerprint; fd leak check clean across 8 configs"
+          ]
+        }
+      ],
+      "completed_at": "2026-11-12T20:36:36+00:00"
     },
     "T002": {
       "status": "pending",
@@ -435,6 +506,51 @@
       "at": "2026-11-12T19:39:21+00:00",
       "text": "SPEC 9 target (10k files / 1M LOC <= 10 min) is plausible with ast + batched SQLite writes but unproven; must be measured on the Q03 reference machine.",
       "task": "T028"
+    },
+    {
+      "at": "2026-11-12T20:35:25+00:00",
+      "text": "T001 reviewer R1 [medium]: fallback _OPEN_FLAGS lacks O_BINARY -> Windows text-mode reads would break raw-byte sha256 (walk.py:58-61); add getattr(os,'O_BINARY',0); verify in T030 Windows CI",
+      "task": "T001"
+    },
+    {
+      "at": "2026-11-12T20:35:26+00:00",
+      "text": "T001 reviewer R2 [low]: 'never stat-ed' wording overstated: realpath lstats outside components (walk.py:481, docs 72-73, D-0025); reword; test records os.stat not os.lstat",
+      "task": "T001"
+    },
+    {
+      "at": "2026-11-12T20:35:26+00:00",
+      "text": "T001 reviewer R3 [low]: per-directory listing fully materialised before max_entries; document O(entries) memory per dir; T029 may add per-dir cap",
+      "task": "T001"
+    },
+    {
+      "at": "2026-11-12T20:35:26+00:00",
+      "text": "T001 reviewer R4 [low]: directories_visited and unreadable message differ between fd and fallback modes for unopenable dirs (walk.py:280-310)",
+      "task": "T001"
+    },
+    {
+      "at": "2026-11-12T20:35:26+00:00",
+      "text": "T001 reviewer R5 [low]: stale D-0020 references in config.py:1,76,161 and tests/test_t001.py:4,473 -> cite D-0025/D-0026",
+      "task": "T001"
+    },
+    {
+      "at": "2026-11-12T20:35:26+00:00",
+      "text": "T001 test gaps [low]: _NotRegularError branch untested; scandir-order shuffle test missing; fallback-equivalence test lacks unreadable dir",
+      "task": "T001"
+    },
+    {
+      "at": "2026-11-12T20:36:36+00:00",
+      "text": "T001 tester F1 [medium]: docs/safety-policy.md:72-73, D-0025, walk.py:13,481 claim outside target 'never stat-ed'; realpath lstats every component. Reword + record os.lstat in test_dangling_link_to_outside_is_reported_as_escape",
+      "task": "T001"
+    },
+    {
+      "at": "2026-11-12T20:36:36+00:00",
+      "text": "T001 tester F2 [low]: fallback (_FD_TRAVERSAL=False) mode has no directory-swap protection; walk.py:23-24 and docs 98-100 should say so plainly (T029)",
+      "task": "T001"
+    },
+    {
+      "at": "2026-11-12T20:36:36+00:00",
+      "text": "Env: CPython 3.12.3 skips hidden __editable__*.pth so 'pip install -e .' is inert; tests run via pytest pythonpath=src. T003: note in README/D-0017 or upgrade venv interpreter",
+      "task": "T003"
     }
   ],
   "pending_approvals": [

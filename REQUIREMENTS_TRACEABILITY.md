@@ -5,7 +5,7 @@ Every requirement maps to task(s), acceptance criteria, tests, and evidence. On 
 
 | Requirement | Definition | Tasks | Acceptance criteria | Verification evidence |
 |---|---|---|---|---|
-| R01 | Safety: no target execution, bounded safe file discovery | T001, T002, T006, T029, T033 | AC-01, AC-02, AC-03, AC-04, AC-05, AC-06, AC-07, AC-08, AC-09, AC-10, AC-11, AC-12 | pending |
+| R01 | Safety: no target execution, bounded safe file discovery | T001, T002, T006, T029, T033 | AC-01, AC-11 | **partial (T001 verified 2026-11-12)**: `tests/test_t001.py::TestNonExecution`, `::TestSymlinks`, `::TestNoFollow`, `::TestSizeAndLimits`, `::TestDiagnostics` — 150 passed / 1 skipped (APFS non-UTF-8 name); tester PASS, reviewer APPROVE; D-0015, D-0016, D-0018–D-0023, D-0025–D-0027; commit: see `Task: T001` trailer. Remaining: T002, T006, T029, T033 |
 | R02 | Python parsing and lexical/symbol indexing | T002, T006, T007, T033 | AC-01, AC-02, AC-03, AC-04, AC-05, AC-06, AC-07, AC-08, AC-09, AC-10, AC-11, AC-12 | pending |
 | R03 | Typed persistent graph and fast navigation | T004, T007, T022, T024, T026, T027, T033 | AC-01, AC-02, AC-03, AC-04, AC-05, AC-06, AC-07, AC-08, AC-09, AC-10, AC-11, AC-12 | pending |
 | R04 | Evidence, confidence states and diagnostics | T004, T010, T014, T024, T033 | AC-01, AC-02, AC-03, AC-04, AC-05, AC-06, AC-07, AC-08, AC-09, AC-10, AC-11, AC-12 | pending |
@@ -16,13 +16,13 @@ Every requirement maps to task(s), acceptance criteria, tests, and evidence. On 
 | R09 | Manifest, lock, distribution and environment version modeling | T016, T017, T018, T021, T033 | AC-01, AC-02, AC-03, AC-04, AC-05, AC-06, AC-07, AC-08, AC-09, AC-10, AC-11, AC-12 | pending |
 | R10 | Version-specific API, deprecation and compatibility intelligence | T019, T020, T021, T033 | AC-01, AC-02, AC-03, AC-04, AC-05, AC-06, AC-07, AC-08, AC-09, AC-10, AC-11, AC-12 | pending |
 | R11 | Impact, incremental snapshots and graph diff | T022, T023, T025, T033 | AC-01, AC-02, AC-03, AC-04, AC-05, AC-06, AC-07, AC-08, AC-09, AC-10, AC-11, AC-12 | pending |
-| R12 | Documentation, decisions, tests, security, CI and performance | T001, T003, T005, T015, T028, T029, T030, T031, T032, T033 | AC-01, AC-02, AC-03, AC-04, AC-05, AC-06, AC-07, AC-08, AC-09, AC-10, AC-11, AC-12 | pending |
+| R12 | Documentation, decisions, tests, security, CI and performance | T001, T003, T005, T015, T028, T029, T030, T031, T032, T033 | AC-11, AC-12 | **partial (T001 part verified 2026-11-12)**: `pyproject.toml` (pinned pytest/mypy strict/ruff), `docs/safety-policy.md` (§8 records CI→T030 and benchmark→T028 deferral), `README.md`; D-0017; commit: see `Task: T001` trailer. Remaining: T003, T005, T015, T028–T033 |
 
 ## Acceptance criteria to tasks
 
 | Acceptance | Verifying tasks | Status | Evidence |
 |---|---|---|---|
-| AC-01 | T001, T002, T004, T006, T022, T033 | pending | pending |
+| AC-01 | T001, T002, T004, T006, T022, T033 | partial (T001 foundation verified 2026-11-12) | `tests/test_t001.py::TestDiscoveryPositive`, `::TestDeterminism`, `::TestPackages`, `::test_directory_alias_link_does_not_change_canonical_paths` — deterministic multi-package discovery, canonical path + sha256 identity independent of location and symlinks; cross-process fingerprint identical (tester probe). Graph/query parts pending T002, T004, T006, T022, T033 |
 | AC-02 | T008, T010, T033 | pending | pending |
 | AC-03 | T007, T009, T010, T033 | pending | pending |
 | AC-04 | T004, T011, T012, T014, T015, T033 | pending | pending |
@@ -32,7 +32,7 @@ Every requirement maps to task(s), acceptance criteria, tests, and evidence. On 
 | AC-08 | T024, T025, T033 | pending | pending |
 | AC-09 | T023, T025, T029, T033 | pending | pending |
 | AC-10 | T022, T024, T026, T027, T031, T033 | pending | pending |
-| AC-11 | T001, T005, T006, T028, T029, T030, T033 | pending | pending |
+| AC-11 | T001, T005, T006, T028, T029, T030, T033 | partial (T001 discovery-level security + determinism verified 2026-11-12) | `tests/test_t001.py::TestNonExecution` (hostile setup.py/side-effect modules never executed, audit hook clean), `::TestSymlinks` (escapes rejected under every policy), `::TestNoFollow` (dir_fd + O_NOFOLLOW, TOCTOU swap, fd leak), `::TestSizeAndLimits`; CI (T030) and 10k-file benchmark (T028) explicitly deferred in `docs/safety-policy.md` §8; residual races recorded in D-0026 for T029 |
 | AC-12 | T003, T005, T031, T032, T033 | pending | pending |
 
 ## Required verification artifacts

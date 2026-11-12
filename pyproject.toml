@@ -1,0 +1,69 @@
+[build-system]
+# setuptools is MIT-licensed (D-0008). Backend choice is provisional until T003 (D-0017).
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "code-analysis"
+version = "0.1.0"
+description = "Deterministic, offline, non-executing Python code intelligence engine (Stage 1)."
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+authors = [{ name = "code-analysis contributors" }]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Typing :: Typed",
+]
+# Zero runtime dependencies (D-0017, D-0019). Every future runtime dependency must be
+# permissively licensed (D-0008), pinned here, and recorded in DECISIONS.md.
+dependencies = []
+
+[dependency-groups]
+# Pinned to the versions installed in .venv/ (D-0014, D-0017). All MIT-licensed.
+dev = [
+  "pytest==9.2.0",
+  "mypy==2.4.1",
+  "ruff==0.17.5",
+]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+code_analysis = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+# Fixture trees are data, never test modules: do not collect or import them.
+norecursedirs = ["fixtures", ".venv", ".git", "build", "dist"]
+addopts = "-ra --strict-markers --strict-config"
+xfail_strict = true
+
+[tool.mypy]
+strict = true
+mypy_path = "src"
+files = ["src", "tests"]
+exclude = ["^tests/fixtures/"]
+python_version = "3.12"
+warn_unreachable = true
+show_error_codes = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+# .claude/ holds orchestration tooling owned by the workflow, not analyzer code.
+extend-exclude = ["tests/fixtures", ".venv", ".claude"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "UP", "N", "SIM", "RUF"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["code_analysis"]

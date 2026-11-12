@@ -2,14 +2,14 @@
   "schema_version": 1,
   "project": "code-impact-migration-stage1",
   "created_at": "2026-11-12T19:38:55+00:00",
-  "updated_at": "2026-11-12T19:38:55+00:00",
+  "updated_at": "2026-11-12T19:48:41+00:00",
   "config": {
     "base_branch": "dev",
     "work_branch": null,
     "max_attempts": 3,
-    "allow_push": false,
-    "allow_pr": false,
-    "allow_network": false,
+    "allow_push": true,
+    "allow_pr": true,
+    "allow_network": true,
     "baseline_commit_approved": true,
     "stable_branch": "main",
     "branch_model": "feature/<task-id>-<description> from dev, merged --no-ff into dev; dev -> main only on user-approved release"
@@ -17,52 +17,44 @@
   "current_task": null,
   "tasks": {
     "T001": {
-      "status": "blocked",
+      "status": "pending",
       "attempts": 0,
       "stage": null,
-      "blocked_reason": "unresolved question(s) Q09",
-      "blocking_questions": [
-        "Q09"
-      ],
+      "blocked_reason": null,
+      "blocking_questions": [],
       "commits": [],
       "evidence": [],
       "history": [],
       "completed_at": null
     },
     "T002": {
-      "status": "blocked",
+      "status": "pending",
       "attempts": 0,
       "stage": null,
-      "blocked_reason": "unresolved question(s) Q01",
-      "blocking_questions": [
-        "Q01"
-      ],
+      "blocked_reason": null,
+      "blocking_questions": [],
       "commits": [],
       "evidence": [],
       "history": [],
       "completed_at": null
     },
     "T003": {
-      "status": "blocked",
+      "status": "pending",
       "attempts": 0,
       "stage": null,
-      "blocked_reason": "unresolved question(s) Q07",
-      "blocking_questions": [
-        "Q07"
-      ],
+      "blocked_reason": null,
+      "blocking_questions": [],
       "commits": [],
       "evidence": [],
       "history": [],
       "completed_at": null
     },
     "T004": {
-      "status": "blocked",
+      "status": "pending",
       "attempts": 0,
       "stage": null,
-      "blocked_reason": "unresolved question(s) Q11",
-      "blocking_questions": [
-        "Q11"
-      ],
+      "blocked_reason": null,
+      "blocking_questions": [],
       "commits": [],
       "evidence": [],
       "history": [],
@@ -80,26 +72,22 @@
       "completed_at": null
     },
     "T006": {
-      "status": "blocked",
+      "status": "pending",
       "attempts": 0,
       "stage": null,
-      "blocked_reason": "unresolved question(s) Q01",
-      "blocking_questions": [
-        "Q01"
-      ],
+      "blocked_reason": null,
+      "blocking_questions": [],
       "commits": [],
       "evidence": [],
       "history": [],
       "completed_at": null
     },
     "T007": {
-      "status": "blocked",
+      "status": "pending",
       "attempts": 0,
       "stage": null,
-      "blocked_reason": "unresolved question(s) Q09",
-      "blocking_questions": [
-        "Q09"
-      ],
+      "blocked_reason": null,
+      "blocking_questions": [],
       "commits": [],
       "evidence": [],
       "history": [],
@@ -194,93 +182,77 @@
       "completed_at": null
     },
     "T016": {
-      "status": "blocked",
+      "status": "pending",
       "attempts": 0,
       "stage": null,
-      "blocked_reason": "unresolved question(s) Q06",
-      "blocking_questions": [
-        "Q06"
-      ],
+      "blocked_reason": null,
+      "blocking_questions": [],
       "commits": [],
       "evidence": [],
       "history": [],
       "completed_at": null
     },
     "T017": {
-      "status": "blocked",
+      "status": "pending",
       "attempts": 0,
       "stage": null,
-      "blocked_reason": "unresolved question(s) Q04",
-      "blocking_questions": [
-        "Q04"
-      ],
+      "blocked_reason": null,
+      "blocking_questions": [],
       "commits": [],
       "evidence": [],
       "history": [],
       "completed_at": null
     },
     "T018": {
-      "status": "blocked",
+      "status": "pending",
       "attempts": 0,
       "stage": null,
-      "blocked_reason": "unresolved question(s) Q04",
-      "blocking_questions": [
-        "Q04"
-      ],
+      "blocked_reason": null,
+      "blocking_questions": [],
       "commits": [],
       "evidence": [],
       "history": [],
       "completed_at": null
     },
     "T019": {
-      "status": "blocked",
+      "status": "pending",
       "attempts": 0,
       "stage": null,
-      "blocked_reason": "unresolved question(s) Q05, Q10",
-      "blocking_questions": [
-        "Q05",
-        "Q10"
-      ],
+      "blocked_reason": null,
+      "blocking_questions": [],
       "commits": [],
       "evidence": [],
       "history": [],
       "completed_at": null
     },
     "T020": {
-      "status": "blocked",
+      "status": "pending",
       "attempts": 0,
       "stage": null,
-      "blocked_reason": "unresolved question(s) Q06, Q10",
-      "blocking_questions": [
-        "Q06",
-        "Q10"
-      ],
+      "blocked_reason": null,
+      "blocking_questions": [],
       "commits": [],
       "evidence": [],
       "history": [],
       "completed_at": null
     },
     "T021": {
-      "status": "blocked",
+      "status": "pending",
       "attempts": 0,
       "stage": null,
-      "blocked_reason": "unresolved question(s) Q05",
-      "blocking_questions": [
-        "Q05"
-      ],
+      "blocked_reason": null,
+      "blocking_questions": [],
       "commits": [],
       "evidence": [],
       "history": [],
       "completed_at": null
     },
     "T022": {
-      "status": "blocked",
+      "status": "pending",
       "attempts": 0,
       "stage": null,
-      "blocked_reason": "unresolved question(s) Q11",
-      "blocking_questions": [
-        "Q11"
-      ],
+      "blocked_reason": null,
+      "blocking_questions": [],
       "commits": [],
       "evidence": [],
       "history": [],
@@ -309,52 +281,44 @@
       "completed_at": null
     },
     "T025": {
-      "status": "blocked",
+      "status": "pending",
       "attempts": 0,
       "stage": null,
-      "blocked_reason": "unresolved question(s) Q08",
-      "blocking_questions": [
-        "Q08"
-      ],
+      "blocked_reason": null,
+      "blocking_questions": [],
       "commits": [],
       "evidence": [],
       "history": [],
       "completed_at": null
     },
     "T026": {
-      "status": "blocked",
+      "status": "pending",
       "attempts": 0,
       "stage": null,
-      "blocked_reason": "unresolved question(s) Q12",
-      "blocking_questions": [
-        "Q12"
-      ],
+      "blocked_reason": null,
+      "blocking_questions": [],
       "commits": [],
       "evidence": [],
       "history": [],
       "completed_at": null
     },
     "T027": {
-      "status": "blocked",
+      "status": "pending",
       "attempts": 0,
       "stage": null,
-      "blocked_reason": "unresolved question(s) Q02",
-      "blocking_questions": [
-        "Q02"
-      ],
+      "blocked_reason": null,
+      "blocking_questions": [],
       "commits": [],
       "evidence": [],
       "history": [],
       "completed_at": null
     },
     "T028": {
-      "status": "blocked",
+      "status": "pending",
       "attempts": 0,
       "stage": null,
-      "blocked_reason": "unresolved question(s) Q03",
-      "blocking_questions": [
-        "Q03"
-      ],
+      "blocked_reason": null,
+      "blocking_questions": [],
       "commits": [],
       "evidence": [],
       "history": [],
@@ -417,164 +381,10 @@
     }
   },
   "completed": [],
-  "blocked": [
-    {
-      "task": "T001",
-      "reasons": [
-        "unresolved question(s) Q09"
-      ],
-      "questions": [
-        "Q09"
-      ]
-    },
-    {
-      "task": "T002",
-      "reasons": [
-        "unresolved question(s) Q01"
-      ],
-      "questions": [
-        "Q01"
-      ]
-    },
-    {
-      "task": "T003",
-      "reasons": [
-        "unresolved question(s) Q07"
-      ],
-      "questions": [
-        "Q07"
-      ]
-    },
-    {
-      "task": "T004",
-      "reasons": [
-        "unresolved question(s) Q11"
-      ],
-      "questions": [
-        "Q11"
-      ]
-    },
-    {
-      "task": "T006",
-      "reasons": [
-        "unresolved question(s) Q01"
-      ],
-      "questions": [
-        "Q01"
-      ]
-    },
-    {
-      "task": "T007",
-      "reasons": [
-        "unresolved question(s) Q09"
-      ],
-      "questions": [
-        "Q09"
-      ]
-    },
-    {
-      "task": "T016",
-      "reasons": [
-        "unresolved question(s) Q06"
-      ],
-      "questions": [
-        "Q06"
-      ]
-    },
-    {
-      "task": "T017",
-      "reasons": [
-        "unresolved question(s) Q04"
-      ],
-      "questions": [
-        "Q04"
-      ]
-    },
-    {
-      "task": "T018",
-      "reasons": [
-        "unresolved question(s) Q04"
-      ],
-      "questions": [
-        "Q04"
-      ]
-    },
-    {
-      "task": "T019",
-      "reasons": [
-        "unresolved question(s) Q05, Q10"
-      ],
-      "questions": [
-        "Q05",
-        "Q10"
-      ]
-    },
-    {
-      "task": "T020",
-      "reasons": [
-        "unresolved question(s) Q06, Q10"
-      ],
-      "questions": [
-        "Q06",
-        "Q10"
-      ]
-    },
-    {
-      "task": "T021",
-      "reasons": [
-        "unresolved question(s) Q05"
-      ],
-      "questions": [
-        "Q05"
-      ]
-    },
-    {
-      "task": "T022",
-      "reasons": [
-        "unresolved question(s) Q11"
-      ],
-      "questions": [
-        "Q11"
-      ]
-    },
-    {
-      "task": "T025",
-      "reasons": [
-        "unresolved question(s) Q08"
-      ],
-      "questions": [
-        "Q08"
-      ]
-    },
-    {
-      "task": "T026",
-      "reasons": [
-        "unresolved question(s) Q12"
-      ],
-      "questions": [
-        "Q12"
-      ]
-    },
-    {
-      "task": "T027",
-      "reasons": [
-        "unresolved question(s) Q02"
-      ],
-      "questions": [
-        "Q02"
-      ]
-    },
-    {
-      "task": "T028",
-      "reasons": [
-        "unresolved question(s) Q03"
-      ],
-      "questions": [
-        "Q03"
-      ]
-    }
+  "blocked": [],
+  "ready": [
+    "T001"
   ],
-  "ready": [],
   "outstanding": [
     "T001",
     "T002",
@@ -610,217 +420,50 @@
     "T032",
     "T033"
   ],
-  "open_issues": [],
-  "pending_approvals": [],
+  "open_issues": [
+    {
+      "at": "2026-11-12T19:39:20+00:00",
+      "text": "REQUIREMENTS_TRACEABILITY.md maps every requirement R01-R12 to all twelve ACs, so rows carry no information; refine the AC mapping per requirement when T001/T003 touch the docs, and per task thereafter.",
+      "task": null
+    },
+    {
+      "at": "2026-11-12T19:39:20+00:00",
+      "text": "Python ast parses only the host interpreter's grammar (host is 3.12.3). A per-version support matrix (Q01) needs either CI on each interpreter or a third-party parser (libcst/parso, Q07 licensing).",
+      "task": "T002"
+    },
+    {
+      "at": "2026-11-12T19:39:21+00:00",
+      "text": "SPEC 9 target (10k files / 1M LOC <= 10 min) is plausible with ast + batched SQLite writes but unproven; must be measured on the Q03 reference machine.",
+      "task": "T028"
+    }
+  ],
+  "pending_approvals": [
+    {
+      "at": "2026-11-12T19:39:21+00:00",
+      "text": "Network access to create a project virtualenv and pip-install dev tooling (pytest, mypy, ruff, and later packaging/pyproject deps declared in T003). Analyzer itself stays offline.",
+      "state": "granted",
+      "note": "user: create venv and pip install as needed",
+      "resolved_at": "2026-11-12T19:48:40+00:00"
+    },
+    {
+      "at": "2026-11-12T19:39:21+00:00",
+      "text": "Remote git operations: push feature/dev branches to origin (github.com/elijah-tache/code-analysis) and open PRs. Default remains local-only.",
+      "state": "granted",
+      "note": "user: git remote allowed",
+      "resolved_at": "2026-11-12T19:48:40+00:00"
+    }
+  ],
   "warnings": [],
   "last_checkpoint": {
-    "at": "2026-11-12T19:38:55+00:00",
+    "at": "2026-11-12T19:39:21+00:00",
     "task": null,
-    "commit": "HEAD",
-    "note": "baseline: git workflow initialized (D-0001)"
+    "commit": "0d4d08c03e0bbea737d150a0228d1bab6998ea52",
+    "note": "waiting on user: Q01-Q12 and 2 approvals"
   },
-  "last_reconciled_at": "2026-11-12T19:38:55+00:00",
-  "question_impact": {
-    "Q01": [
-      "T002",
-      "T005",
-      "T006",
-      "T007",
-      "T008",
-      "T009",
-      "T010",
-      "T011",
-      "T012",
-      "T013",
-      "T014",
-      "T015",
-      "T016",
-      "T017",
-      "T018",
-      "T019",
-      "T020",
-      "T021",
-      "T022",
-      "T023",
-      "T024",
-      "T025",
-      "T026",
-      "T027",
-      "T028",
-      "T029",
-      "T030",
-      "T031",
-      "T032",
-      "T033"
-    ],
-    "Q02": [
-      "T027"
-    ],
-    "Q03": [
-      "T028",
-      "T030",
-      "T032",
-      "T033"
-    ],
-    "Q04": [
-      "T017",
-      "T018",
-      "T019",
-      "T020",
-      "T021",
-      "T023",
-      "T025",
-      "T026",
-      "T027",
-      "T028",
-      "T029",
-      "T030",
-      "T031",
-      "T032",
-      "T033"
-    ],
-    "Q05": [
-      "T019",
-      "T020",
-      "T021",
-      "T023",
-      "T025",
-      "T026",
-      "T027",
-      "T028",
-      "T029",
-      "T030",
-      "T031",
-      "T032",
-      "T033"
-    ],
-    "Q06": [
-      "T016",
-      "T017",
-      "T018",
-      "T019",
-      "T020",
-      "T021",
-      "T023",
-      "T025",
-      "T026",
-      "T027",
-      "T028",
-      "T029",
-      "T030",
-      "T031",
-      "T032",
-      "T033"
-    ],
-    "Q07": [
-      "T003"
-    ],
-    "Q08": [
-      "T025",
-      "T026",
-      "T027",
-      "T028",
-      "T029",
-      "T030",
-      "T031",
-      "T032",
-      "T033"
-    ],
-    "Q09": [
-      "T001",
-      "T002",
-      "T003",
-      "T004",
-      "T005",
-      "T006",
-      "T007",
-      "T008",
-      "T009",
-      "T010",
-      "T011",
-      "T012",
-      "T013",
-      "T014",
-      "T015",
-      "T016",
-      "T017",
-      "T018",
-      "T019",
-      "T020",
-      "T021",
-      "T022",
-      "T023",
-      "T024",
-      "T025",
-      "T026",
-      "T027",
-      "T028",
-      "T029",
-      "T030",
-      "T031",
-      "T032",
-      "T033"
-    ],
-    "Q10": [
-      "T019",
-      "T020",
-      "T021",
-      "T023",
-      "T025",
-      "T026",
-      "T027",
-      "T028",
-      "T029",
-      "T030",
-      "T031",
-      "T032",
-      "T033"
-    ],
-    "Q11": [
-      "T004",
-      "T005",
-      "T006",
-      "T007",
-      "T008",
-      "T009",
-      "T010",
-      "T011",
-      "T012",
-      "T013",
-      "T014",
-      "T015",
-      "T016",
-      "T017",
-      "T018",
-      "T019",
-      "T020",
-      "T021",
-      "T022",
-      "T023",
-      "T024",
-      "T025",
-      "T026",
-      "T027",
-      "T028",
-      "T029",
-      "T030",
-      "T031",
-      "T032",
-      "T033"
-    ],
-    "Q12": [
-      "T026",
-      "T027",
-      "T028",
-      "T029",
-      "T030",
-      "T031",
-      "T032",
-      "T033"
-    ]
-  },
+  "last_reconciled_at": "2026-11-12T19:48:41+00:00",
+  "question_impact": {},
   "git": {
-    "branch": "main",
-    "head": null
+    "branch": "dev",
+    "head": "0d4d08c03e0bbea737d150a0228d1bab6998ea52"
   }
 }

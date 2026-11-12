@@ -19,7 +19,7 @@
       "id": "T001",
       "title": "Workspace scope and safety policy",
       "phase": "P0",
-      "status": "blocked",
+      "status": "pending",
       "depends_on": [],
       "requirements": [
         "R01",
@@ -32,9 +32,7 @@
       "open_questions": [
         "Q09"
       ],
-      "blocked_by": [
-        "Q09"
-      ],
+      "blocked_by": [],
       "description": "Implement and verify workspace scope and safety policy according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
       "deliverables": [
         "tests/test_t001.py",
@@ -51,7 +49,7 @@
       "id": "T002",
       "title": "Python syntax and environment support matrix",
       "phase": "P0",
-      "status": "blocked",
+      "status": "pending",
       "depends_on": [
         "T001"
       ],
@@ -65,9 +63,7 @@
       "open_questions": [
         "Q01"
       ],
-      "blocked_by": [
-        "Q01"
-      ],
+      "blocked_by": [],
       "description": "Implement and verify python syntax and environment support matrix according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
       "deliverables": [
         "tests/test_t002.py",
@@ -84,7 +80,7 @@
       "id": "T003",
       "title": "Package architecture, tooling and licenses",
       "phase": "P0",
-      "status": "blocked",
+      "status": "pending",
       "depends_on": [
         "T001"
       ],
@@ -97,9 +93,7 @@
       "open_questions": [
         "Q07"
       ],
-      "blocked_by": [
-        "Q07"
-      ],
+      "blocked_by": [],
       "description": "Implement and verify package architecture, tooling and licenses according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
       "deliverables": [
         "tests/test_t003.py",
@@ -116,7 +110,7 @@
       "id": "T004",
       "title": "Graph schema, IDs, provenance and uncertainty",
       "phase": "P0",
-      "status": "blocked",
+      "status": "pending",
       "depends_on": [
         "T001"
       ],
@@ -131,9 +125,7 @@
       "open_questions": [
         "Q11"
       ],
-      "blocked_by": [
-        "Q11"
-      ],
+      "blocked_by": [],
       "description": "Implement and verify graph schema, ids, provenance and uncertainty according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
       "deliverables": [
         "tests/test_t004.py",
@@ -180,7 +172,7 @@
       "id": "T006",
       "title": "Safe discovery and syntax parser",
       "phase": "P1",
-      "status": "blocked",
+      "status": "pending",
       "depends_on": [
         "T002",
         "T005"
@@ -196,9 +188,7 @@
       "open_questions": [
         "Q01"
       ],
-      "blocked_by": [
-        "Q01"
-      ],
+      "blocked_by": [],
       "description": "Implement and verify safe discovery and syntax parser according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
       "deliverables": [
         "tests/test_t006.py",
@@ -215,7 +205,7 @@
       "id": "T007",
       "title": "Scopes, bindings and symbol definitions",
       "phase": "P1",
-      "status": "blocked",
+      "status": "pending",
       "depends_on": [
         "T006"
       ],
@@ -229,9 +219,7 @@
       "open_questions": [
         "Q09"
       ],
-      "blocked_by": [
-        "Q09"
-      ],
+      "blocked_by": [],
       "description": "Implement and verify scopes, bindings and symbol definitions according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
       "deliverables": [
         "tests/test_t007.py",
@@ -480,7 +468,7 @@
       "id": "T016",
       "title": "Environment tuple and marker evaluation",
       "phase": "P3",
-      "status": "blocked",
+      "status": "pending",
       "depends_on": [
         "T005"
       ],
@@ -493,9 +481,7 @@
       "open_questions": [
         "Q06"
       ],
-      "blocked_by": [
-        "Q06"
-      ],
+      "blocked_by": [],
       "description": "Implement and verify environment tuple and marker evaluation according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
       "deliverables": [
         "tests/test_t016.py",
@@ -512,7 +498,7 @@
       "id": "T017",
       "title": "Declared dependency manifest adapters",
       "phase": "P3",
-      "status": "blocked",
+      "status": "pending",
       "depends_on": [
         "T016"
       ],
@@ -525,9 +511,7 @@
       "open_questions": [
         "Q04"
       ],
-      "blocked_by": [
-        "Q04"
-      ],
+      "blocked_by": [],
       "description": "Implement and verify declared dependency manifest adapters according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
       "deliverables": [
         "tests/test_t017.py",
@@ -544,7 +528,7 @@
       "id": "T018",
       "title": "Lock and installed distribution metadata",
       "phase": "P3",
-      "status": "blocked",
+      "status": "pending",
       "depends_on": [
         "T017"
       ],
@@ -557,9 +541,7 @@
       "open_questions": [
         "Q04"
       ],
-      "blocked_by": [
-        "Q04"
-      ],
+      "blocked_by": [],
       "description": "Implement and verify lock and installed distribution metadata according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
       "deliverables": [
         "tests/test_t018.py",
@@ -576,7 +558,7 @@
       "id": "T019",
       "title": "Versioned API inventory and stubs",
       "phase": "P3",
-      "status": "blocked",
+      "status": "pending",
       "depends_on": [
         "T018",
         "T008"
@@ -591,10 +573,7 @@
         "Q05",
         "Q10"
       ],
-      "blocked_by": [
-        "Q05",
-        "Q10"
-      ],
+      "blocked_by": [],
       "description": "Implement and verify versioned api inventory and stubs according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
       "deliverables": [
         "tests/test_t019.py",
@@ -611,7 +590,7 @@
       "id": "T020",
       "title": "Compatibility and deprecated API rules",
       "phase": "P3",
-      "status": "blocked",
+      "status": "pending",
       "depends_on": [
         "T019"
       ],
@@ -625,10 +604,7 @@
         "Q06",
         "Q10"
       ],
-      "blocked_by": [
-        "Q06",
-        "Q10"
-      ],
+      "blocked_by": [],
       "description": "Implement and verify compatibility and deprecated api rules according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
       "deliverables": [
         "tests/test_t020.py",
@@ -645,7 +621,7 @@
       "id": "T021",
       "title": "Compatibility fixture matrix and evidence",
       "phase": "P3",
-      "status": "blocked",
+      "status": "pending",
       "depends_on": [
         "T020"
       ],
@@ -660,9 +636,7 @@
       "open_questions": [
         "Q05"
       ],
-      "blocked_by": [
-        "Q05"
-      ],
+      "blocked_by": [],
       "description": "Implement and verify compatibility fixture matrix and evidence according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
       "deliverables": [
         "tests/test_t021.py",
@@ -679,7 +653,7 @@
       "id": "T022",
       "title": "SQLite graph store and indexed traversal",
       "phase": "P4",
-      "status": "blocked",
+      "status": "pending",
       "depends_on": [
         "T004",
         "T010"
@@ -695,9 +669,7 @@
       "open_questions": [
         "Q11"
       ],
-      "blocked_by": [
-        "Q11"
-      ],
+      "blocked_by": [],
       "description": "Implement and verify sqlite graph store and indexed traversal according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
       "deliverables": [
         "tests/test_t022.py",
@@ -775,7 +747,7 @@
       "id": "T025",
       "title": "Impact traversal, risk categories and snapshot diff",
       "phase": "P4",
-      "status": "blocked",
+      "status": "pending",
       "depends_on": [
         "T023",
         "T024"
@@ -790,9 +762,7 @@
       "open_questions": [
         "Q08"
       ],
-      "blocked_by": [
-        "Q08"
-      ],
+      "blocked_by": [],
       "description": "Implement and verify impact traversal, risk categories and snapshot diff according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
       "deliverables": [
         "tests/test_t025.py",
@@ -809,7 +779,7 @@
       "id": "T026",
       "title": "CLI, JSON/GraphML export and optional read-only API",
       "phase": "P4",
-      "status": "blocked",
+      "status": "pending",
       "depends_on": [
         "T024",
         "T025"
@@ -823,9 +793,7 @@
       "open_questions": [
         "Q12"
       ],
-      "blocked_by": [
-        "Q12"
-      ],
+      "blocked_by": [],
       "description": "Implement and verify cli, json/graphml export and optional read-only api according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
       "deliverables": [
         "tests/test_t026.py",
@@ -842,7 +810,7 @@
       "id": "T027",
       "title": "Optional lazy graph browser UI",
       "phase": "P4",
-      "status": "blocked",
+      "status": "pending",
       "depends_on": [
         "T026"
       ],
@@ -855,9 +823,7 @@
       "open_questions": [
         "Q02"
       ],
-      "blocked_by": [
-        "Q02"
-      ],
+      "blocked_by": [],
       "description": "Implement and verify optional lazy graph browser ui according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
       "deliverables": [
         "tests/test_t027.py",
@@ -874,7 +840,7 @@
       "id": "T028",
       "title": "Performance benchmarks and optimization",
       "phase": "P5",
-      "status": "blocked",
+      "status": "pending",
       "depends_on": [
         "T026"
       ],
@@ -887,9 +853,7 @@
       "open_questions": [
         "Q03"
       ],
-      "blocked_by": [
-        "Q03"
-      ],
+      "blocked_by": [],
       "description": "Implement and verify performance benchmarks and optimization according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
       "deliverables": [
         "tests/test_t028.py",

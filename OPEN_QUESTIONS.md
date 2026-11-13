@@ -16,6 +16,8 @@ Every question has an ID, owner, status, impact, default/proposal, and resolutio
 | Q10 | Are pre-existing `.pyi` stubs and local wheel artifacts available for version-specific API analysis? | resolved / user (2026-11-12) | Analyze supplied artifacts; report unknown if absent | T019, T020 |
 | Q11 | Should source content be stored in the graph, or only locations/hashes and short evidence excerpts? | resolved / user (2026-11-12) | Locations/hashes plus minimal redacted excerpts; never secrets | T004, T022 |
 | Q12 | Is local HTTP API acceptable, and what access controls are needed? | resolved / user (2026-11-12) | Loopback-only, read-only, disabled unless enabled | T026 |
+| Q13 | Which license applies to the project itself (affects LICENSE file, package metadata, redistribution/PyPI publication)? | open / needs_user | MIT (alternatives: Apache-2.0, BSD-3-Clause, proprietary); see D-0037 | T031, T032 |
+| Q14 | The repository lives under iCloud Drive (`~/Desktop`), which re-hides the editable `.pth` file so `make install` cannot be durable there. Move the repository out of iCloud, keep it but place the venv outside (`make VENV=~/.venvs/code-analysis install`), or leave both and accept that only the pytest/`PYTHONPATH=src` paths work? | open / needs_user | Option 2 (venv outside iCloud) is the least disruptive and already supported; see D-0040 | none (tests do not depend on the install); affects local use of the `code-analysis` console script |
 
 ## Claude autonomy rules
 Claude may independently decide reversible internal design details after comparing alternatives and recording them in `DECISIONS.md`. Claude must not assume an unanswered product/security/environment requirement is approved. For each blocked task, add `blocked_by` question IDs in `tasks.json`, write a concrete proposed answer and its consequences here, and continue unrelated tasks. When the user answers, record the answer verbatim or accurately paraphrased, date it, mark resolved, log decision, and re-evaluate task dependencies. If an answer changes requirements, update spec, plan, task definitions and traceability in one coherent commit.
@@ -36,5 +38,8 @@ Answers given by the user on 2026-11-12 (chat), recorded verbatim or closely par
 - **Q10** — resolved 2026-11-12 by user: Use proposed default (analyze supplied artifacts; report unknown if absent). (D-0011)
 - **Q11** — resolved 2026-11-12 by user: Choose whatever is faster to navigate, not faster to create (optimize the read/query path over index build time). (D-0012)
 - **Q12** — resolved 2026-11-12 by user: Local HTTP API is acceptable (loopback-only, read-only, disabled unless enabled). (D-0013)
+
+- **Q13** — opened 2026-11-12 by Claude (T003): project license undecided; no license is claimed in package metadata until answered (D-0037).
+- **Q14** — opened 2026-11-13 by Claude (T003 fix round, tester finding F1): iCloud Drive hides the editable `.pth` file within seconds of `make install`; `make install` now fails honestly on this host with the options; the user's choice decides the local layout (D-0040).
 
 All dependent tasks were re-evaluated with `devstate.py sync` after these resolutions.

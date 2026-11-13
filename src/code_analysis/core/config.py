@@ -1,4 +1,4 @@
-"""Typed, immutable workspace configuration (D-0018, D-0019, D-0020, D-0021).
+"""Typed, immutable workspace configuration (D-0018, D-0019, D-0021, D-0025).
 
 A workspace is an *ordered* set of roots, each with a stable ``root_id``.  Every
 path produced by the analyzer is namespaced by its root (D-0010) so that further
@@ -73,7 +73,7 @@ class RootKind(enum.StrEnum):
 
 
 class SymlinkPolicy(enum.StrEnum):
-    """How symbolic links encountered during discovery are handled (D-0020).
+    """How symbolic links encountered during discovery are handled (D-0025).
 
     There is intentionally no policy that follows links outside a root (D-0016).
     """
@@ -158,7 +158,7 @@ class TraversalLimits:
 
 @dataclass(frozen=True, slots=True)
 class SafetyPolicy:
-    """Explicit safety settings applied to every root (D-0020, D-0021).
+    """Explicit safety settings applied to every root (D-0021, D-0025, D-0026).
 
     The non-execution boundary itself is not configurable: there is no setting that
     makes the analyzer import, execute or build target code (D-0015).

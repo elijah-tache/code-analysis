@@ -1,7 +1,7 @@
 """T001 — workspace scope and safety policy.
 
 Covers: configuration validation (D-0018), pattern semantics (D-0019), deterministic
-multi-package discovery, symlink handling (D-0020), size caps and traversal bounds
+multi-package discovery, symlink handling (D-0025, D-0026), size caps and traversal bounds
 (D-0021), diagnostics and package identification (D-0022), and the non-execution
 boundary (D-0015, D-0023).  Hostile content and symlinks are generated in ``tmp_path``.
 """
@@ -470,7 +470,7 @@ class TestDeterminism:
 
 
 # --------------------------------------------------------------------------------------
-# symlinks (D-0020, SPEC 9 "symlink escape")
+# symlinks (D-0025, D-0026, SPEC 9 "symlink escape")
 # --------------------------------------------------------------------------------------
 
 
@@ -510,8 +510,9 @@ class TestSymlinks:
     ) -> None:
         root, outside = linked_tree
         (root / "escape").symlink_to(outside, target_is_directory=True)
-        # Also a relative '..'-style link, which is the classic escape vector.
-        os.symlink(os.path.join("..", "..", "outside", "deep"), root / "pkg" / "rel_escape")
+        # Also a relative '..'-style link, which is the classic escape vector (os-level call
+        # on purpose: the link text must stay a relative string).
+        os.symlink(os.path.join("..", "..", "outside", "deep"), root / "pkg" / "rel_escape")  # noqa: PTH211, PTH118
         result = discover(_config(root, safety=_safety(symlink_policy=policy)))
         assert _paths(result) == ["pkg/__init__.py", "pkg/real.py"]
         assert sorted(d.path for d in _diags(result, DiagnosticCode.SYMLINK_ESCAPES_ROOT)) == [
@@ -830,7 +831,7 @@ class TestSizeAndLimits:
         assert not walk_module._valid_name("nul\x00.py")
 
     def test_undecodable_name_diagnosed(self, tmp_path: Path) -> None:
-        raw = os.path.join(os.fsencode(tmp_path), b"\xff\xfe.py")
+        raw = os.path.join(os.fsencode(tmp_path), b"\xff\xfe.py")  # noqa: PTH118 (bytes path)
         try:
             fd = os.open(raw, os.O_WRONLY | os.O_CREAT, 0o644)
         except OSError as exc:  # e.g. APFS rejects non-UTF-8 names
@@ -900,14 +901,15 @@ class TestNoFollow:
         (diag,) = result.diagnostics
         assert (diag.code, diag.path) == (DiagnosticCode.UNREADABLE, "swap")
 
-    @pytest.mark.skipif(not os.path.isdir("/dev/fd"), reason="needs /dev/fd to count descriptors")
+    @pytest.mark.skipif(not os.path.isdir("/dev/fd"), reason="needs /dev/fd to count descriptors")  # noqa: PTH112
     def test_no_descriptor_leak_even_when_truncated(self, tmp_path: Path) -> None:
         for name in ("a/b/c/x.py", "a/b/y.py", "a/z.py", "d/e/w.py"):
             _write(tmp_path / name)
-        before = set(os.listdir("/dev/fd"))
+        # os.listdir on purpose: Path.iterdir would open an extra descriptor while counting.
+        before = set(os.listdir("/dev/fd"))  # noqa: PTH208
         discover(_config(tmp_path))
         discover(_config(tmp_path, safety=_safety(limits={"max_files": 2})))
-        assert set(os.listdir("/dev/fd")) == before
+        assert set(os.listdir("/dev/fd")) == before  # noqa: PTH208
 
     def test_path_fallback_matches_descriptor_traversal(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
@@ -944,7 +946,7 @@ class TestDiagnostics:
         assert (diag.root_id, diag.path, diag.severity) == ("gone", ".", Severity.ERROR)
 
     def test_messages_never_contain_file_content(self, tmp_path: Path) -> None:
-        secret = "SECRET_TOKEN_abc123"
+        secret = "SECRET_TOKEN_abc123"  # noqa: S105 (deliberate secret-looking fixture text)
         (tmp_path / "big.py").write_text(secret * 100, encoding="utf-8")
         (tmp_path / "link.py").symlink_to(tmp_path / "big.py")
         result = discover(_config(tmp_path, safety=_safety(max_file_size_bytes=10)))

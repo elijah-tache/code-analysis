@@ -1,7 +1,8 @@
 # Safety policy — workspace scope and non-execution boundary
 
 Status: in force for Stage 1 (T001). Decisions: D-0015, D-0016, D-0018, D-0019, D-0021 – D-0023,
-D-0025 (symlinks; supersedes D-0020), D-0026 (descriptor-relative traversal), D-0027 (output shape).
+D-0025 (symlinks; supersedes D-0020), D-0026 (descriptor-relative traversal), D-0027 (output shape),
+D-0038 (`O_BINARY`), D-0039 (precise wording of the `realpath` and fallback-mode guarantees).
 Normative source: `SPEC.md` §3 (hard boundaries), §4 (inputs), §6 step 1, §9 (security tests).
 
 ## 1. Non-execution boundary
@@ -68,9 +69,12 @@ Links are handled in this order; the first matching rule wins and nothing later 
 
 1. The link's own path matches an exclusion → `excluded_by_pattern`; the target is not
    resolved.
-2. The link resolves (`realpath`, link metadata only) outside the root's real path →
-   `symlink_escapes_root` (warning). The outside target is never `stat`-ed, so the
-   analyzer does not learn whether it exists.
+2. The link resolves outside the root's real path → `symlink_escapes_root` (warning).
+   Resolution uses `os.path.realpath`, which performs only `lstat`/`readlink` metadata
+   calls on the path components (including components outside the root) and whose
+   result does not depend on whether the target exists. The target is never opened or
+   `stat`-ed through the link, so the diagnostic is identical for an existing and a
+   missing outside target (D-0039).
 3. The in-root target does not exist (or the link loops onto itself) →
    `symlink_target_missing`.
 4. `symlink_policy = never` → `symlink_not_followed` (info).
@@ -87,7 +91,8 @@ Links are handled in this order; the first matching rule wins and nothing later 
 
 Directories are opened with `O_DIRECTORY | O_NOFOLLOW` relative to the already-open
 descriptor of their parent (`dir_fd`) and listed with `os.scandir(fd)`; every type check is
-descriptor-relative with `follow_symlinks=False`. Files are opened with `O_NOFOLLOW`
+descriptor-relative with `follow_symlinks=False`. Files are opened with `O_NOFOLLOW` (plus
+`O_BINARY` where the platform defines it, so bytes are never newline-translated, D-0038)
 relative to the same descriptor and re-checked with `fstat` for type and size. An entry
 that is swapped for a symlink after it was classified therefore fails with
 `ELOOP`/`ENOTDIR` and is reported as `unreadable` instead of being followed. At most
@@ -96,9 +101,12 @@ that is swapped for a symlink after it was classified therefore fails with
 Known residual limitations (handed to T029): a file link followed under `within_root` is
 opened by its resolved absolute path, so a *component* of that path swapped for a link in
 the same instant is not detected (the final component still has `O_NOFOLLOW`); on
-platforms without `dir_fd` support (Windows) the walk runs on absolute paths with only
-the final-component protection; `realpath` itself is not atomic with respect to the
-later `stat` of an in-root target.
+platforms without `dir_fd` support (Windows; `_FD_TRAVERSAL` false) the walk runs on
+absolute paths and has **no directory-swap protection**: a directory replaced by a
+symlink after it was classified is listed through the link, and only the final-component
+`O_NOFOLLOW` check on files remains (D-0039; pinned by a strict `xfail` test in
+`tests/test_t003.py` so that T029 must update it when closing the gap); `realpath`
+itself is not atomic with respect to the later `stat` of an in-root target.
 
 ### Pattern syntax (gitignore-style subset, D-0019)
 

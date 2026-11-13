@@ -1,36 +1,62 @@
 [build-system]
-# setuptools is MIT-licensed (D-0008). Backend choice is provisional until T003 (D-0017).
-requires = ["setuptools>=77"]
+# setuptools is MIT-licensed (D-0008); backend decision D-0030; bounded range per D-0029.
+requires = ["setuptools>=77,<85"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "code-analysis"
-version = "0.1.0"
+# The only place the version is written is ``code_analysis.__version__`` (D-0035).
+dynamic = ["version"]
 description = "Deterministic, offline, non-executing Python code intelligence engine (Stage 1)."
 readme = "README.md"
+# Analyzer *runtime* floor (D-0031). The *parsed* syntax range 3.8-3.14 (D-0002) is a
+# separate matter decided in T002.
 requires-python = ">=3.12"
-license = "MIT"
+# No ``license`` field on purpose: the project license is a pending user decision
+# (D-0037, needs-user). tests/test_t003.py asserts that no license is claimed until then.
 authors = [{ name = "code-analysis contributors" }]
+keywords = ["static-analysis", "code-intelligence", "dependency-graph", "impact-analysis"]
 classifiers = [
   "Development Status :: 2 - Pre-Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Software Development :: Quality Assurance",
   "Typing :: Typed",
 ]
-# Zero runtime dependencies (D-0017, D-0019). Every future runtime dependency must be
-# permissively licensed (D-0008), pinned here, and recorded in DECISIONS.md.
+# Zero runtime dependencies (D-0029). Any future runtime dependency must be permissively
+# licensed (D-0008), pinned (``==`` or a bounded range) and documented in
+# docs/dependencies.md; tests/test_t003.py enforces all three.
 dependencies = []
 
+[project.urls]
+Repository = "https://github.com/elijah-tache/code-analysis"
+
+[project.scripts]
+code-analysis = "code_analysis.cli:main"
+
 [dependency-groups]
-# Pinned to the versions installed in .venv/ (D-0014, D-0017). All MIT-licensed.
+# Exact pins (D-0029), matching what is installed in .venv/; licenses in docs/dependencies.md.
 dev = [
   "pytest==9.2.0",
   "mypy==2.4.1",
   "ruff==0.17.5",
+  "pytest-cov==7.1.0",
+  "coverage==7.17.3",
+  "pip-licenses==5.5.5",
+  # The build backend itself, so wheels build offline without isolation (D-0041). Must
+  # satisfy [build-system] requires; tests/test_t003.py checks that.
+  "setuptools==84.2.1",
 ]
 
 [tool.setuptools]
 package-dir = { "" = "src" }
+
+[tool.setuptools.dynamic]
+# setuptools reads the attribute statically (ast); the package is not imported to build.
+version = { attr = "code_analysis.__version__" }
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -40,16 +66,38 @@ code_analysis = ["py.typed"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["src"]
+# src/ makes tests independent of the install state (D-0040); scripts/ exposes the
+# development-only tooling to its tests.
+pythonpath = ["src", "scripts"]
 # Fixture trees are data, never test modules: do not collect or import them.
 norecursedirs = ["fixtures", ".venv", ".git", "build", "dist"]
 addopts = "-ra --strict-markers --strict-config"
 xfail_strict = true
 
+[tool.coverage.run]
+# Branch coverage (D-0033); invoked by ``make coverage``, not by plain ``pytest``.
+branch = true
+source = ["code_analysis"]
+# Three lines exercised through a subprocess smoke test (tests/test_t003.py).
+omit = ["*/code_analysis/__main__.py"]
+
+[tool.coverage.report]
+# Threshold recorded in D-0033 and mirrored by COV_FAIL_UNDER in the Makefile.
+fail_under = 90
+show_missing = true
+exclude_also = [
+  "if TYPE_CHECKING:",
+  "^\\s*\\.\\.\\.$",
+  "raise NotImplementedError",
+]
+
+[tool.coverage.paths]
+source = ["src/code_analysis", "*/site-packages/code_analysis"]
+
 [tool.mypy]
 strict = true
-mypy_path = "src"
-files = ["src", "tests"]
+mypy_path = "src:scripts"
+files = ["src", "tests", "scripts"]
 exclude = ["^tests/fixtures/"]
 python_version = "3.12"
 warn_unreachable = true
@@ -58,12 +106,41 @@ show_error_codes = true
 [tool.ruff]
 line-length = 100
 target-version = "py312"
-src = ["src", "tests"]
+src = ["src", "tests", "scripts"]
 # .claude/ holds orchestration tooling owned by the workflow, not analyzer code.
 extend-exclude = ["tests/fixtures", ".venv", ".claude"]
 
 [tool.ruff.lint]
-select = ["E", "W", "F", "I", "B", "UP", "N", "SIM", "RUF"]
+# Families and allowlists are recorded in D-0032.
+select = [
+  "E", "W", "F", "I", "B", "UP", "N", "SIM", "RUF",  # baseline (D-0017)
+  "PTH",  # pathlib over os.path in new code
+  "S",    # bandit: execution, subprocess, temp-file and weak-hash misuse
+  "ANN",  # every function annotated (complements mypy --strict)
+  "FA",   # from __future__ import annotations where it matters
+  "C4",   # comprehension hygiene
+  "PIE",  # misc. pitfalls
+  "RET",  # consistent returns
+  "T20",  # no stray print(); the CLI package is allowlisted below
+  "PGH",  # no blanket noqa / type: ignore
+  "ERA",  # no commented-out code
+  "TID",  # absolute imports only (architecture rule R3, D-0028)
+]
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.lint.per-file-ignores]
+# Descriptor-relative I/O (dir_fd, O_NOFOLLOW) has no pathlib equivalent (D-0026).
+"src/code_analysis/discovery/walk.py" = ["PTH"]
+# Writing to stdout is the CLI's job.
+"src/code_analysis/cli/*" = ["T20"]
+# Development tooling (D-0040): prints its report; spawns the venv interpreter with a
+# fixed argv (S603).
+"scripts/*" = ["T20", "S603"]
+# Tests assert (S101); test doubles wrap untyped os callables (ANN401); tests spawn the
+# project's own interpreter with a fixed argv (S603).
+"tests/*" = ["S101", "ANN401", "S603"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["code_analysis"]

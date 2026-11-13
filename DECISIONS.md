@@ -397,3 +397,213 @@ These are **proposals**, not silent implementation approvals. Claude must explic
 - Consequences and follow-up work: T024 (CLI/JSON output) and T010 (graph store) consume `to_dict()`; T023 uses `content_fingerprint()`.
 - Verification: `tests/test_t001.py::TestDeterminism` (`test_two_runs_are_equal`, `test_fingerprint_independent_of_absolute_location`, `test_fingerprint_changes_with_content`), `TestDiscoveryPositive::test_to_dict_is_json_serializable_and_stable`.
 - Supersedes: none
+
+### D-0028 — Package architecture: layered pipeline, module layout and enforced import rules
+- Date (UTC): 2026-11-12
+- Status: accepted
+- Author/approver: Claude (developer, T003)
+- Related: R03, R12; T003, T002, T004, T006–T027; AC-12; D-0010, D-0012, D-0015, D-0017, D-0018; SPEC §5.4, §6, §8, §11; IMPLEMENTATION_PLAN "Architecture"
+- Context/problem: The plan proposes a pipeline and a list of module names but nothing fixes where immutable records live versus storage, which layer may import which, or how the rule is kept true as fifteen more tasks add code. T001 created only `core` and `discovery`.
+- Options considered: (a) flat package with naming conventions and prose only; (b) layered subpackages with a numbered dependency rule written in `docs/architecture.md` and enforced by an `ast`-based test over every module in `src/`; (c) split analysis and storage into separate distributions (strongest boundary, but premature for one small team and one package); (d) adopt the `import-linter` dev tool (BSD-2) with a contracts file (another tool and config format for a rule that fits in one test).
+- Chosen option: (b). Layers, lowest first, matched by longest dotted prefix under `code_analysis`: 0 `foundation` = `core`; 1 `records` = `graph.schema`, `evidence`, `diagnostics`; 2 `input` = `discovery`, `syntax`; 3 `structure` = `scopes`, `imports`, `symbols`; 4 `semantics` = `resolution`, `dataflow`; 5 `dependency` = `metadata`, `compat`; 6 `persistence` = `graph` (store, migrations); 7 `queries` = `graph.query`, `impact`, `snapshots`; 8 `interfaces` = `cli`, `api`, `viewer`, `__main__`. Rules: R1 a module imports only its own or a lower layer; R2 no module imports a private (underscore-prefixed) module or name from another layer package; R3 absolute imports only; R4 every module under `src/code_analysis` must be mapped to a layer (an unmapped package fails the test, forcing an architecture entry); R5 third-party imports in `src/` are limited to the declared runtime dependencies (D-0029); R6 `code_analysis/__init__.py` imports no subpackage (importing the package stays side-effect free and cheap). `graph.schema` is deliberately in the records layer: it holds immutable node/edge/evidence dataclasses, ID derivation and the schema version and performs no I/O, so analysis stages can produce graph records without importing storage ("analysis separated from storage"). Stub packages created now, documented and empty: `syntax` (parser boundary), `graph` (storage boundary) and `cli` (interface; see D-0036). Other packages are created by their owning task and added to the layer map in the same change.
+- Rationale/evidence: An enforced rule is the only kind that survives autonomous multi-task development; `ast` parsing of our own source is already the pattern used by `tests/test_t001.py` for the no-execution self-check, needs no dependency, and runs in milliseconds.
+- Tradeoffs, risks, limitations: Longest-prefix mapping means `graph/__init__.py` (layer 6) may not re-export `graph.query` (layer 7); interfaces import `code_analysis.graph.query` directly. Same-layer imports are allowed (e.g. `impact` ↔ `snapshots`), so cycles inside a layer are possible; keep them out by review. The rule checks static imports only; dynamic imports are forbidden anyway (D-0015).
+- Consequences and follow-up work: `docs/architecture.md` is the human-readable description and its layer table must match the test's map (checked). T004 creates `graph.schema`, `evidence`, `diagnostics`; T006 `syntax`; T022 `graph.store`; T024 `graph.query`/`cli` commands.
+- Verification: `tests/test_t003.py::TestImportLayering` (R1–R6, doc/test consistency, and a negative self-test on synthetic violations).
+- Supersedes: none (refines D-0017's layout)
+
+### D-0029 — Runtime dependency set (none), license policy and pin policy
+- Date (UTC): 2026-11-12
+- Status: accepted
+- Author/approver: Claude (developer, T003); policy from the user (D-0008)
+- Related: Q07; R12; T003, T002, T006, T016, T017, T018, T024; AC-12; D-0006, D-0008, D-0014, D-0017, D-0019; SPEC §7
+- Context/problem: D-0008 requires permissive licenses and a documented table of dependencies and alternatives. D-0017 left the runtime set at zero provisionally. Candidates had to be decided, not just listed, and the policy had to become machine-checkable.
+- Options considered: Per candidate — `packaging` (Apache-2.0 OR BSD-2-Clause; PEP 440/508 specifiers and markers) vs. a hand-written parser; `tomli` (MIT) vs. stdlib `tomllib`; a lockfile library vs. none; `libcst` (MIT, with PSF-licensed grammar parts) / `parso` (MIT + PSF) vs. stdlib `ast`; `typer` (MIT, depends on `click`) / `click` (BSD-3) vs. stdlib `argparse`; `pydantic` (MIT) vs. stdlib frozen dataclasses; `sqlite3` (stdlib) vs. an ORM or external graph store; `pathspec` (MPL-2.0; already rejected in D-0019). Pinning style for runtime dependencies — exact `==` (reproducible, but hostile to co-installation with other tools in one environment) vs. bounded range `>=tested,<next-major` (co-installable, protected from breaking majors, exact tested version recorded in the table) vs. unbounded floor (not reproducible).
+- Chosen option: Stage 1 foundation has **zero runtime dependencies**. `tomllib`, `argparse`, `dataclasses`, `sqlite3`, `ast`, `hashlib` are used from the standard library. `packaging` is *pre-approved* (license and purpose recorded in `docs/dependencies.md`) and is added by T016 when PEP 440/508 evaluation is implemented, as `packaging>=26.3,<27`; writing our own specifier/marker parser is rejected (large, subtle, and the reference implementation is permissively licensed). No lockfile library: `poetry.lock`/`uv.lock`/`pdm.lock` are TOML and `Pipfile.lock` is JSON, both stdlib-parsable (T017/T018). Parser libraries stay out until T002 decides whether stdlib `ast` on the host interpreter suffices; their license facts are recorded now so T002 only decides on technical merit. Allowed SPDX identifiers: `MIT`, `MIT-0`, `BSD-2-Clause`, `BSD-3-Clause`, `0BSD`, `Apache-2.0`, `PSF-2.0`, `Python-2.0`, `ISC`, `Zlib`; `OR` expressions are allowed if any branch is allowed, `AND` only if all are. Not allowed for runtime: MPL, LGPL, GPL, AGPL, EUPL, SSPL, BUSL, CC-BY-SA. Pin policy: runtime dependencies `==X` or a bounded range (`>=a,<b` or `~=a.b`); development dependencies exact `==`; build requirements bounded. Development tools added: `pytest-cov==7.1.0` (MIT), `coverage==7.17.3` (Apache-2.0), `pip-licenses==5.5.5` (MIT). The policy applies to runtime dependencies and anything vendored; development-only transitive packages are listed for transparency (`pathspec` MPL-2.0 arrives via mypy and is neither imported by nor shipped with the analyzer).
+- Rationale/evidence: Zero dependencies keeps the analyzer trivially offline (D-0006), auditable (no third-party code runs on untrusted input) and installable anywhere; every stdlib alternative covers the Stage 1 need. License facts were read from the installed distributions' metadata (`License-Expression`/classifiers) with `pip-licenses` on 2026-11-12.
+- Tradeoffs, risks, limitations: `argparse` is more verbose than `click`/`typer` for twelve subcommands (T024). Stdlib `ast` ties the parsed grammar to the host interpreter (D-0002 risk, owned by T002). Bounded ranges can admit a broken minor release; the table records the exact version tested.
+- Consequences and follow-up work: `docs/dependencies.md` holds the tables; `tests/test_t003.py::TestDependencyPolicy` reads `pyproject.toml` and the tables and fails on any undocumented, unpinned or non-permissive dependency and on any third-party import in `src/` that is not a declared runtime dependency. Adding a runtime dependency requires a new decision entry plus a table row.
+- Verification: `tests/test_t003.py::TestDependencyPolicy`, `TestImportLayering::test_only_declared_third_party_imports`; `make licenses` output recorded in the T003 developer report.
+- Supersedes: D-0017 (dependency-table and "revisit" items)
+
+### D-0030 — Build backend stays setuptools; editable install made reliable on this host (hidden `.pth` files)
+- Date (UTC): 2026-11-12
+- Status: accepted
+- Author/approver: Claude (developer, T003)
+- Related: R12; T003, T030; AC-12; D-0008, D-0017, D-0029, D-0034
+- Context/problem: D-0017 left the backend choice open. Separately, `pip install -e .` appeared inert on the development host: `.venv/bin/python -c "import code_analysis"` failed although `__editable__.code_analysis-0.1.0.pth` existed and contained the `src` path.
+- Options considered: `setuptools` (MIT; ubiquitous, PEP 621/639 support since 77, dynamic `attr:` version read statically) vs. `hatchling` (MIT; cleaner defaults, but another tool to learn and it also installs editable projects through a `.pth` file) vs. `flit-core` (BSD-3; no `package-dir` src mapping needed but no dynamic version from an attribute without importing). For the editable problem: (i) `--config-settings editable_mode=compat` (deprecated by setuptools, prints a warning); (ii) switch backend; (iii) document the real cause and clear it in the install target.
+- Chosen option: Keep `setuptools` with `requires = ["setuptools>=77,<85"]` and (iii). Root cause found with `python -v`: `site.py` in CPython 3.12.3 logs `Skipping hidden .pth file` because the file carries the macOS `UF_HIDDEN` flag (`ls -lO` shows `hidden`). The flag is set by pip's wheel extraction on this host — every file of a freshly installed downloaded wheel (e.g. `pytest_cov-7.1.0.dist-info/METADATA`) and the first editable install carried it, while later editable reinstalls did not. Neither editable mode nor the backend addresses this; `chflags nohidden` on the `.pth` files does, immediately and verifiably. `make install` therefore runs the editable install, clears the flag on `site-packages/*.pth` when on Darwin, and proves the import with `python -c "import code_analysis"`. Tests continue to run through pytest's `pythonpath = ["src"]`, so they never depend on the install state.
+- Rationale/evidence: Observed on 2026-11-12: before — `.pth` hidden, import fails; after `chflags nohidden` — import succeeds from `src/`; `__editable__` file written by a fresh `pip install -e .` (pip 26.3) not hidden, import succeeds. Changing backends would not have fixed a flag set by the installer.
+- Tradeoffs, risks, limitations: The workaround is macOS-specific; Linux CI (T030) does not need it. The `.pth` file may become hidden again after a reinstall; `make install` is idempotent. `pip wheel`/`build` need network for build isolation, so tests do not build a wheel; installability is verified by the editable install plus `importlib.metadata` checks.
+- Consequences and follow-up work: README documents `make install` and the symptom. T030 verifies a clean non-editable `pip install .` in CI.
+- Verification: `tests/test_t003.py::TestPackageMetadata::test_installed_distribution_matches_source` (skips when not installed), `::test_build_backend_is_setuptools`; manual: `.venv/bin/python -c "import code_analysis"`.
+- Supersedes: D-0017 (backend provisional note)
+
+### D-0031 — Analyzer runtime floor: `requires-python >= 3.12`
+- Date (UTC): 2026-11-12
+- Status: accepted
+- Author/approver: Claude (developer, T003)
+- Related: R12; T002, T003, T030; AC-12; D-0002, D-0017
+- Context/problem: D-0017 asked whether the runtime floor should be lowered for users. This is distinct from the parsed syntax range 3.8–3.14 (D-0002), which T002 handles.
+- Options considered: 3.11 (adds `tomllib` and `StrEnum`, which the code uses; widens the audience; no 3.11 interpreter exists on the development host — only 3.10 and 3.12 — so it cannot be tested now); 3.12 (the development interpreter; `pathlib` and `typing` improvements, PEP 695 syntax available if wanted); 3.13 (too new for users).
+- Chosen option: 3.12. Classifiers list only `3.12`; `3.13`/`3.14` are added when CI (T030) runs them. Lowering to 3.11 is a one-line change (`requires-python`, `ruff target-version`, `mypy python_version`) that may be made in a new entry once a 3.11 job exists — never before, because the project claims only what it tests.
+- Rationale/evidence: SPEC §3.8 (a stage is complete only when tests pass) and the project rule against unverified claims.
+- Tradeoffs, risks, limitations: Users on 3.11 cannot install Stage 1 until the floor is revisited. The host interpreter also bounds which grammar stdlib `ast` can parse; that is T002's matrix, not this floor.
+- Consequences and follow-up work: T030 adds interpreter matrix; T002 documents per-host parse coverage.
+- Verification: `tests/test_t003.py::TestPackageMetadata::test_requires_python_floor_is_consistent`.
+- Supersedes: D-0017 (floor "to revisit" note)
+
+### D-0032 — Ruff rule set finalised (PTH, S, ANN, FA, TID and friends); explicit allowlists
+- Date (UTC): 2026-11-12
+- Status: accepted
+- Author/approver: Claude (developer, T003)
+- Related: R12; T003; AC-12; D-0015, D-0017, D-0026, D-0028
+- Context/problem: D-0017 selected `E, W, F, I, B, UP, N, SIM, RUF` and deferred `PTH`, `S`, `ANN`.
+- Options considered: Measured each candidate family against the current tree (`ruff check --select ... --statistics`): `PTH` (9 hits, all deliberate `os`-level I/O), `S` (197× `S101` assert in tests, 1× `S105` false positive on a test string), `ANN` (18× `ANN401` `Any` in test doubles), `FA`/`C4`/`PIE`/`RET`/`T20`/`PGH`/`ERA`/`TID` (0–1 hits), `PL` (10 hits: magic numbers, argument counts — opinionated, no safety value), `FBT` (2 hits in a parametrized test; would force keyword-only booleans retroactively), `PERF` (2 stylistic hits in the no-execution scanner), `ISC` (`ISC001` conflicts with the formatter), `D` (docstring style; deferred to the documentation task).
+- Chosen option: Add `PTH`, `S`, `ANN`, `FA`, `C4`, `PIE`, `RET`, `T20`, `PGH`, `ERA`, `TID` (with `ban-relative-imports = "all"`, which is architecture rule R3 of D-0028). Not adopted: `PL`, `FBT`, `PERF`, `ISC`, `D`. Allowlists, each with a reason in `pyproject.toml`: `src/code_analysis/discovery/walk.py` ignores `PTH` (descriptor-relative `dir_fd`/`O_NOFOLLOW` I/O has no `pathlib` equivalent, D-0026); `src/code_analysis/cli/*` ignores `T20` (writing to stdout is the CLI's job); `tests/*` ignore `S101` (assert), `ANN401` (test doubles wrapping untyped `os` callables) and `S603` (tests spawn the project's own interpreter with fixed argv). Six individual lines in `tests/test_t001.py` carry targeted `noqa` codes (`PTH211`, `PTH118`, `PTH112`, `PTH208`, `S105`) with the reason inline. One real finding was fixed (`C416` in `core/patterns.py`).
+- Rationale/evidence: `S` is the only automated check for the no-execution boundary besides the tests; `PTH` keeps new code on `pathlib` while the one module that must use descriptors is allowlisted as a whole, visibly; `ANN` complements `mypy --strict` for tests (mypy does not require annotations on untyped test helpers unless `disallow_untyped_defs`, which strict does — `ANN` adds the lint-time signal).
+- Tradeoffs, risks, limitations: `S` has false positives on strings that look like secrets; they are handled per line, never by disabling the family. `T20` must be allowlisted again if another interface package prints.
+- Consequences and follow-up work: `make lint` runs `ruff check .` and `ruff format --check .`.
+- Verification: `ruff check .` and `ruff format --check .` clean; `tests/test_t003.py::TestToolingConfig::test_ruff_rule_families_and_allowlists`.
+- Supersedes: D-0017 (rule set)
+
+### D-0033 — Coverage tooling: pytest-cov with branch coverage, `fail_under = 90`
+- Date (UTC): 2026-11-12
+- Status: accepted
+- Author/approver: Claude (developer, T003)
+- Related: R12; T003, T005, T030; AC-11, AC-12; D-0029
+- Context/problem: No coverage measurement existed; a recorded threshold is required for phase gates.
+- Options considered: `coverage run -m pytest` (no plugin, two commands) vs. `pytest-cov` (MIT; one command, `--cov-fail-under`, subprocess support) vs. no coverage. Threshold: 80 (too loose for a safety-critical walker), 95 (would fail on defensive OS-error branches that cannot be reproduced deterministically), 90, or "current value" (brittle). Always-on via `addopts` vs. a separate target.
+- Chosen option: `pytest-cov==7.1.0` + `coverage==7.17.3`, branch coverage on, `fail_under = 90` in `[tool.coverage.report]` and mirrored by `make coverage` (`COV_FAIL_UNDER ?= 90`). Not in `addopts`: plain `pytest` stays fast and `--pdb`-friendly; CI (T030) runs `make coverage`. `__main__.py` (three lines, exercised through a subprocess smoke test) is omitted. Measured baseline on 2026-11-12 before T003's code: 646 statements, 176 branches, 96% (line-only 97%).
+- Rationale/evidence: 90 catches an untested module or a dropped test class while tolerating the ~4% of defensive branches identified in `walk.py` (`OSError` handlers, `_NotRegularError`).
+- Tradeoffs, risks, limitations: Branch coverage does not prove the hostile-input behaviour; mutation checks (T001 report) and the security suite (T029) do. The threshold is global, so a large well-covered module can mask a small uncovered one; T005 may add per-module reporting.
+- Consequences and follow-up work: `.coverage*`/`htmlcov/` already git-ignored.
+- Verification: `make coverage` → total ≥ 90% (actual value in the T003 report); `tests/test_t003.py::TestToolingConfig::test_coverage_threshold_is_recorded_consistently`.
+- Supersedes: none
+
+### D-0034 — Task runner: `Makefile` (GNU make), no Python-based runner
+- Date (UTC): 2026-11-12
+- Status: accepted
+- Author/approver: Claude (developer, T003)
+- Related: R12; T003, T030; AC-12; D-0029, D-0030
+- Context/problem: Developers and CI need one place that spells out the verification commands (and the editable-install workaround, D-0030).
+- Options considered: `Makefile` (GNU make 3.81 ships with macOS and every Linux; no dependency; shell-level) vs. `nox` (MIT; Python sessions, manages its own venvs; another dev dependency and a second venv layer) vs. `tox` (MIT; same, INI-driven) vs. `just` (not installed) vs. shell scripts (no target graph, no `help`).
+- Chosen option: `Makefile` with targets `venv`, `install`, `test`, `typecheck`, `lint`, `format`, `coverage`, `licenses`, `check` (= lint + typecheck + coverage), `clean`, and `help`; every tool is invoked from `$(VENV)/bin` (`VENV ?= .venv`). Written for GNU make 3.81 syntax (no `!=`, no `.ONESHELL`).
+- Rationale/evidence: Zero new dependencies, matches the "stdlib-friendly" preference of the project, and the T030 CI can call the same targets.
+- Tradeoffs, risks, limitations: Windows developers run the commands listed in `README.md` directly (no make); multi-interpreter matrices are CI's job, not make's.
+- Consequences and follow-up work: README references `make` targets; T030 uses `make check`.
+- Verification: `tests/test_t003.py::TestToolingConfig::test_makefile_declares_expected_targets`; `make check` run in the T003 report.
+- Supersedes: none
+
+### D-0035 — Version single source (`code_analysis.__version__`, dynamic metadata), classifiers, changelog
+- Date (UTC): 2026-11-12
+- Status: accepted
+- Author/approver: Claude (developer, T003)
+- Related: R12; T003, T031; AC-12; D-0017, D-0030
+- Context/problem: `pyproject.toml` carried `version = "0.1.0"` and `__init__.py` carried `__version__ = "0.1.0"`: two sources that can drift.
+- Options considered: (a) keep both and test equality; (b) `dynamic = ["version"]` with `[tool.setuptools.dynamic] version = {attr = "code_analysis.__version__"}` — setuptools reads the attribute statically (via `ast`) without importing the package at build time; (c) `__version__ = importlib.metadata.version("code-analysis")` — fails whenever the distribution is not installed (exactly the D-0030 situation) and costs a metadata lookup at import; (d) `setuptools-scm` from git tags (extra build dependency; no release tags yet).
+- Chosen option: (b). `code_analysis.__version__` is the only place a version is written; the SPEC's "analysis version" stored in snapshots (§5.3) will read it from there. Classifiers: `Development Status :: 2 - Pre-Alpha`, `Environment :: Console`, `Intended Audience :: Developers`, `Programming Language :: Python :: 3 / 3 :: Only / 3.12`, `Topic :: Software Development :: Quality Assurance`, `Typing :: Typed`; no OS classifier until Linux/Windows are tested (T030); no license classifier (D-0037). `project.urls.Repository` points at the configured `origin`. `CHANGELOG.md` follows Keep a Changelog 1.1.0 with an `Unreleased` section; a version bump edits `__init__.py` and the changelog together.
+- Rationale/evidence: One write location, no import at build time (keeps the "never import to build" habit even for our own package), works with the inert-install scenario.
+- Tradeoffs, risks, limitations: setuptools' static reader handles only simple string assignments — `__version__` must stay a literal.
+- Consequences and follow-up work: T031 (docs) owns release notes beyond the changelog.
+- Verification: `tests/test_t003.py::TestPackageMetadata::test_version_is_single_sourced`, `::test_installed_distribution_matches_source`, `TestToolingConfig::test_changelog_follows_keep_a_changelog`.
+- Supersedes: D-0017 (static version)
+
+### D-0036 — CLI scaffolding: `argparse`, `code-analysis` console script, `python -m code_analysis`, exit codes 0/2
+- Date (UTC): 2026-11-12
+- Status: accepted
+- Author/approver: Claude (developer, T003)
+- Related: R12; T003, T024; AC-10, AC-12; D-0028, D-0029; SPEC §8
+- Context/problem: The package needs its entry point declared so installation produces the `code-analysis` command; the SPEC's twelve commands belong to T024.
+- Options considered: Framework — `argparse` (stdlib) vs. `click` (BSD-3) vs. `typer` (MIT, depends on `click`, optional `rich`) — see D-0029. Scope now — no CLI module (entry point would dangle) vs. a stub that only knows `--version`/`--help`. Exit code on no arguments — 0 with help (chosen for the stub; nothing is "missing" yet) vs. 2 (usage error; T024 decides once commands exist).
+- Chosen option: `code_analysis.cli.main(argv=None) -> int` built on `argparse`; `--version` prints `code-analysis <version>` and returns 0, `--help` and no arguments print help and return 0, unknown arguments return 2 (`argparse` convention) with the usage on stderr. `ExitCode` is an `IntEnum` with `OK = 0` and `USAGE = 2`; T024 extends it (and documents the full table per SPEC §8) rather than inventing codes ad hoc. `[project.scripts] code-analysis = "code_analysis.cli:main"`; `code_analysis/__main__.py` makes `python -m code_analysis` work without the console script (useful while the editable install is inert, D-0030). `main` catches `argparse`'s `SystemExit` and returns the code so it is testable in-process.
+- Rationale/evidence: Keeps the runtime dependency count at zero; argparse subparsers cover the twelve commands, `--json` and `--help` required by SPEC §8.
+- Tradeoffs, risks, limitations: No SPEC command exists yet; running the stub does nothing useful by design.
+- Consequences and follow-up work: T024 adds subcommands, `--json`, and the exit-code table.
+- Verification: `tests/test_t003.py::TestCliStub` (in-process flags and codes; `python -m code_analysis --version` subprocess smoke).
+- Supersedes: none
+
+### D-0037 — Project license is undecided: no license claimed in metadata, `LICENSE` absent
+- Date (UTC): 2026-11-12
+- Status: needs-user
+- Author/approver: Claude (developer, T003); decision owner: user
+- Related: R12; T003, T031; AC-12; D-0008, D-0035
+- Context/problem: `pyproject.toml` declared `license = "MIT"` without a user decision and without a `LICENSE` file. The project's own license is a product/legal decision that Claude must not make.
+- Options considered: (a) MIT — shortest, most common for Python tooling, no patent clause; (b) Apache-2.0 — explicit patent grant and contribution terms, requires a `NOTICE` file and license headers are customary; (c) BSD-3-Clause — MIT-like with a no-endorsement clause; (d) proprietary / all rights reserved — default under copyright law when nothing is granted; blocks any redistribution or PyPI publication. All of (a)–(c) are compatible with the permissive-only dependency policy (D-0008).
+- Chosen option: None yet. Until the user decides: the `license` field is removed from `pyproject.toml` (no claim), no `License ::` classifier is set, `LICENSE` is absent, and `tests/test_t003.py` asserts exactly this state so the choice cannot be made silently. Proposed default for the user to confirm or change: MIT.
+- Rationale/evidence: Inventing a license would be a material, irreversible product decision (B07, D-0016).
+- Tradeoffs, risks, limitations: Without a license the code is "all rights reserved" by default; publication to PyPI (T031/T032) is blocked until this is resolved.
+- Consequences and follow-up work: When the user answers, a new entry records it, `LICENSE` is added, `license = "<SPDX>"` and `license-files` are set, and the assertion in `tests/test_t003.py` is inverted.
+- Verification: `tests/test_t003.py::TestPackageMetadata::test_no_license_is_claimed_until_decided`.
+- Supersedes: D-0017 (the `license = "MIT"` line)
+
+### D-0038 — Add `O_BINARY` to the file-open flags (T001 reviewer finding R1)
+- Date (UTC): 2026-11-12
+- Status: accepted
+- Author/approver: Claude (developer, T003)
+- Related: R01; T001, T003, T030; AC-11; D-0021, D-0026
+- Context/problem: `_OPEN_FLAGS` in `discovery/walk.py` lacked `O_BINARY`. On Windows, `os.open` without it opens in text mode and translates CRLF, which would corrupt the raw-byte SHA-256 (D-0021) in the fallback traversal mode.
+- Options considered: `getattr(os, "O_BINARY", 0)` ORed into the flags (no-op on POSIX, where the name does not exist) vs. leaving it to T030's Windows CI to discover.
+- Chosen option: `_O_BINARY: Final = getattr(os, "O_BINARY", 0)`; `_OPEN_FLAGS = os.O_RDONLY | _O_NOFOLLOW | _O_CLOEXEC | _O_BINARY`. Directory opens are unaffected.
+- Rationale/evidence: Zero cost on POSIX; removes a known Windows hazard before any Windows run exists.
+- Tradeoffs, risks, limitations: Cannot be executed on this host (no `O_BINARY`); verified structurally.
+- Consequences and follow-up work: T030 Windows CI confirms hashes equal the POSIX fixture hashes.
+- Verification: `tests/test_t003.py::TestT001FollowUps::test_open_flags_include_o_binary_when_available`.
+- Supersedes: none (amends D-0021/D-0026 flag list)
+
+### D-0039 — Clarify D-0025/D-0026 wording: `realpath` uses `lstat`/`readlink` metadata calls; fallback mode has no directory-swap protection
+- Date (UTC): 2026-11-12
+- Status: accepted
+- Author/approver: Claude (developer, T003); T001 tester finding F1/F2 and reviewer finding R2
+- Related: R01; T001, T003, T029; AC-11; D-0025, D-0026
+- Context/problem: D-0025, `docs/safety-policy.md` §4.1 and `walk.py` said an outside symlink target is "never `stat`-ed". `os.path.realpath` does call `os.lstat`/`os.readlink` on each path component (including components outside the root) to resolve the link; what is true is that the *result does not depend on whether the target exists* and that nothing is opened or `stat`-ed *through* the link. Separately, the fallback mode without `dir_fd` support was described as keeping "final-component protection", which understates the gap: a directory swapped for a link after classification is listed through the link in that mode.
+- Options considered: Edit D-0025/D-0026 in place (violates the append-only rule) vs. a clarifying entry plus wording fixes in code and docs vs. changing behaviour (e.g. a `strict`-free manual component walk that stops at the root boundary — more code for a race T029 already owns).
+- Chosen option: Clarifying entry; wording fixed in `walk.py` (module docstring and the `_handle_symlink` comment), `docs/safety-policy.md` §4.1 and §4.2. New wording: "resolved by `realpath`, which performs only `lstat`/`readlink` metadata calls; the result does not depend on target existence; the target is never opened or `stat`-ed through the link". Fallback mode: "no directory-swap protection (T029)". Behaviour unchanged.
+- Rationale/evidence: Precision in a security document matters more than brevity; `tests/test_t003.py` adds a behavioural check that the escape diagnostic is identical whether or not the outside target exists and that no `os.open` touches an outside path, plus a strict `xfail` test that pins the fallback-mode limitation so T029 must update it when fixing.
+- Tradeoffs, risks, limitations: The `xfail` documents a known weakness in the test suite output; it is intentional and reported.
+- Consequences and follow-up work: T029 decides whether fallback mode should refuse to run on hostile trees or implement a safer walk; D-0025/D-0026 stand otherwise.
+- Verification: `tests/test_t003.py::TestT001FollowUps::test_escape_diagnostic_independent_of_target_existence`, `::test_fallback_mode_has_no_directory_swap_protection` (xfail strict), `::test_safety_policy_wording_is_precise`.
+- Supersedes: D-0025 and D-0026 (wording only; rules and behaviour unchanged)
+
+### D-0040 — Editable install root cause corrected: iCloud Drive re-hides `.pth` files; `make install` verifies instead of patching (supersedes the D-0030 root-cause analysis and workaround)
+- Date (UTC): 2026-11-13
+- Status: accepted (handling); the layout choice it depends on is needs-user (Q14)
+- Author/approver: Claude (developer, T003 fix round); root cause established by the T003 tester (finding F1)
+- Related: R12; T003, T030; AC-12; D-0030, D-0034; Q14
+- Context/problem: D-0030 attributed the inert editable install to "pip's wheel extraction" setting the macOS `UF_HIDDEN` flag on the `.pth` file and had `make install` run `chflags nohidden`. The tester showed that the flag returns about five seconds after it is cleared: the repository lives under `~/Desktop`, which is synced by iCloud Drive ("Desktop & Documents"), and the iCloud daemon applies `UF_HIDDEN` to every dot-path it manages (`.git`, `.gitignore`, `.venv/**`, hence `__editable__.code_analysis-0.1.0.pth`). CPython 3.12.3 `site.py` skips hidden `.pth` files, so the editable install and the `code-analysis` console script are inert whenever the venv is under iCloud. pip does not set the flag; an editable install into a venv outside iCloud works durably. D-0030's backend decision (setuptools, `>=77,<85`) is unaffected and stands.
+- Options considered: (1) keep `chflags nohidden` and claim success (wrong: undone within seconds); (2) move the repository out of iCloud; (3) keep the repository and put the venv outside iCloud (`make VENV=~/.venvs/code-analysis install`, which the existing `VENV ?=` override already supports); (4) leave both in place and document that only the pytest path (`pythonpath = ["src"]`) and `PYTHONPATH=src python -m code_analysis` work; (5) have the analyzer package work around it at import time (rejected: the package must stay side-effect free, R6, and this is a host problem, not a package problem).
+- Chosen option: Options 2-4 are the user's call and are tracked as Q14; nothing in the repository is moved by Claude. Independently of that choice, `make install` stops claiming a fix: it no longer runs `chflags`, and after `pip install -e .` plus the dev group it runs `scripts/check_install.py` with the venv interpreter. The script (stdlib only, `mypy --strict`, ruff-checked, unit-tested) starts a fresh `python -I` and requires `import code_analysis` to resolve to this repository's `src/`; it reports every `site-packages/*.pth` that carries `UF_HIDDEN`; and it reports when the venv has an ancestor managed by iCloud Drive (xattr `com.apple.icloud.*`, or `~/Library/Mobile Documents`) or another File Provider sync domain (xattr `com.apple.file-provider-domain-id`). Any of the three conditions fails the target with the cause and the options above (including the exact `make VENV=... install` command). A standalone `make check-install` target runs the same check. Tests never depend on the install state (`pythonpath = ["src"]`), so `make check` is unaffected.
+- Rationale/evidence: Tester measurement: `.pth` hidden again at t=+5.1 s after `make install`; import fails from `/private/tmp`; editable install into a venv outside iCloud works. Reproduced on 2026-11-13: `ls -lO .venv/lib/python3.12/site-packages/*.pth` shows `hidden`; `xattr ~/Desktop` and `xattr ~/Documents` list `com.apple.icloud.desktop` and `com.apple.file-provider-domain-id`; `.venv/bin/python -c "import code_analysis"` from `/private/tmp` fails with `ModuleNotFoundError`. A verification step cannot be undone by the sync daemon, whereas a flag change can.
+- Tradeoffs, risks, limitations: On this host `make install` now exits 1 until Q14 is answered (every package is still installed; only the final check fails) — this is the honest state. The cloud-sync detection is heuristic (xattr names observed on macOS 15; `Library/Mobile Documents` path); other sync tools that hide dot-files are not detected, but the hidden-`.pth` and import checks still catch the symptom. Windows and Linux: the flag and xattr checks are no-ops; only the import check applies.
+- Consequences and follow-up work: README "Install" documents the real cause, the `VENV=` override and the three options; `docs/dependencies.md` and `docs/architecture.md` reference this entry. Q14 records the pending user choice; the T003 tracking notes should say that the editable install is unusable on this host until Q14 is resolved. T030 (CI on Linux/Windows runners, no iCloud) verifies a clean `pip install .`.
+- Verification: `tests/test_t003.py::TestInstallCheck` (hidden-flag detection via `os.chflags`, cloud-ancestor detection with a stubbed `os.listxattr` and with a `Library/Mobile Documents` path, message content, exit codes), `::TestToolingConfig::test_makefile_declares_expected_targets` (no `chflags`; `install` runs the check), `::test_make_install_recipe`; manual: `make install` on this host fails with the iCloud message; `make VENV=<path outside iCloud> install` succeeds.
+- Supersedes: D-0030 (root-cause analysis and the `chflags` workaround only; the setuptools backend decision stands)
+
+### D-0041 — Reproducible, offline wheel builds: pinned `setuptools` in the dev group, `clean-build` before every build, wheel contents checked against `src/`
+- Date (UTC): 2026-11-13
+- Status: accepted
+- Author/approver: Claude (developer, T003 fix round); T003 tester finding F2
+- Related: R12; T003, T030; AC-12; D-0029, D-0030, D-0034
+- Context/problem: A stale `build/lib/code_analysis/cli/main.py` from an earlier module layout was reused by setuptools' `build_py` (it merges `build/lib` instead of recreating it), so wheels built from the working tree shipped a module that no longer exists in `src/`. Nothing verified wheel contents. Building a wheel offline was not possible: Python 3.12 venvs contain no `setuptools`, so `pip wheel --no-build-isolation` fails, and an isolated build downloads the backend.
+- Options considered: (a) rely on `make clean` by convention; (b) make every build-related target depend on a `clean-build` step; (c) add a test that builds a wheel and compares it with `src/` — with the backend obtained by (c1) network/build isolation (not offline, not reproducible), (c2) `python -m build` (adds the `build` distribution and its dependencies), or (c3) the venv's own `setuptools`, pinned exactly in the dev group like every other dev tool (D-0029 pin policy), so `pip wheel --no-deps --no-build-isolation --no-index` runs offline with the same backend version everywhere.
+- Chosen option: (b) + (c) with (c3). `Makefile`: `clean-build` removes `build/`, `dist/` and `src/*.egg-info`; `install` and the new `build` target (`pip wheel --no-deps --no-build-isolation --no-index --wheel-dir dist .`) depend on it; `clean` depends on it too. `pyproject.toml`: `setuptools==84.2.1` (MIT; the newest release inside the existing `[build-system] requires` range `>=77,<85`) joins the `dev` group; `[build-system]` is unchanged, so isolated builds (plain `pip install .`, T030) keep the bounded range. `tests/test_t003.py::TestWheelContents` copies `pyproject.toml`, `README.md` and `src/` (without `__pycache__`/egg-info) to a temporary directory, builds a wheel there with the venv's pip and setuptools (`--no-index`, no network), and asserts that the set of `code_analysis/**` entries in the wheel equals the set of files under `src/code_analysis/` (no extras, no missing, `py.typed` included), that the wheel `Version` equals `__version__` and that `entry_points.txt` declares the console script. The test skips with an explicit reason only when `setuptools` or `pip` is not importable. A second test asserts that the dev pin satisfies the build-system range, and the Makefile tests assert the `clean-build` prerequisites.
+- Rationale/evidence: Building in a temporary copy keeps the repository clean and makes the test independent of a stale `build/`; the `clean-build` prerequisite closes the stale-artefact path for real builds from the working tree. The sdist is not checked (pip cannot build one; `python -m build` was rejected above); T030's clean `pip install .` covers the sdist path.
+- Tradeoffs, risks, limitations: One more dev tool to keep pinned (setuptools releases often; the pin, not the range, decides what the test uses). `pip wheel` of the copy takes about two seconds. The dev-group pin and the build-system range can drift apart; the new test fails when the pin leaves the range.
+- Consequences and follow-up work: `docs/dependencies.md` gains the dev row (and now lists `packaging` among the observed transitive packages); README documents `make build`. When the project license is decided (D-0037) the wheel test should also assert the license metadata.
+- Verification: `tests/test_t003.py::TestWheelContents`, `::TestDependencyPolicy::test_dev_setuptools_pin_satisfies_build_range`, `::TestToolingConfig::test_makefile_declares_expected_targets`; manual: `make build` produces `dist/code_analysis-0.1.0-py3-none-any.whl` without network.
+- Supersedes: none (extends D-0029 dev-tool set and D-0034 targets)
+
+### D-0042 — `make install` upgrades pip to `>=25.1` before installing the dev group
+- Date (UTC): 2026-11-13
+- Status: accepted
+- Author/approver: Claude (developer, T003 fix round)
+- Related: R12; T003, T030; AC-12; D-0029, D-0034, D-0040
+- Context/problem: `make install` installs the dev tools with `pip install --group dev` (PEP 735 dependency groups), which exists since pip 25.1. The project `.venv` happened to carry pip 26.3, but a venv freshly created by `python3 -m venv` ships the interpreter's bundled pip (24.x on this host), so the documented option `make VENV=~/.venvs/code-analysis install` (D-0040) failed with `no such option: --group` after the editable install had already succeeded.
+- Options considered: (a) upgrade pip inside the target (`python -m pip install --upgrade "pip>=25.1"`, a lower bound, not a pin: pip is the installer, not a tool whose behaviour the tests depend on); (b) replace `--group` with a requirements file duplicating the pins (two sources of truth, against D-0029); (c) pin pip exactly in the dev group (circular: the group is installed by pip).
+- Chosen option: (a), as the first step of `install`, before `pip install -e .`; README's manual steps show the same command. `docs/dependencies.md` already lists pip as part of the venv.
+- Rationale/evidence: `make VENV=<path outside iCloud> install` failed at the `--group` step with the bundled pip and succeeds after the upgrade (T003 fix-round verification). A lower bound keeps the target working with any newer pip while naming the feature floor.
+- Tradeoffs, risks, limitations: The upgrade needs network on a fresh venv (as does everything else in `install`). The project venv's pip version is not pinned; dev-tool pins (D-0029) are unaffected.
+- Consequences and follow-up work: T030 CI runners use the same target; a pip below 25.1 on a runner is upgraded rather than failing.
+- Verification: `tests/test_t003.py::TestToolingConfig::test_makefile_declares_expected_targets` (the upgrade precedes `--group`), `::test_make_build_targets_clean_before_building`; manual run recorded in the T003 fix-round developer report.
+- Supersedes: none (amends the D-0034 `install` recipe)

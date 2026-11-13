@@ -87,7 +87,7 @@ def _validate(pattern: str) -> None:
     if re.match(r"^[A-Za-z]:[/\\]", pattern) or pattern.startswith("//"):
         raise PatternError(f"absolute patterns are not allowed: {pattern!r}")
     body = pattern[1:] if pattern.startswith("/") else pattern
-    segments = [s for s in body.rstrip("/").split("/")]
+    segments = body.rstrip("/").split("/")
     if any(seg in ("..", ".") for seg in segments):
         raise PatternError(f"'.' and '..' segments are not allowed in pattern {pattern!r}")
     if any(seg == "" for seg in segments):

@@ -90,7 +90,7 @@
       "id": "T003",
       "title": "Package architecture, tooling and licenses",
       "phase": "P0",
-      "status": "pending",
+      "status": "done",
       "depends_on": [
         "T001"
       ],
@@ -101,7 +101,8 @@
         "AC-12"
       ],
       "open_questions": [
-        "Q07"
+        "Q07",
+        "Q14"
       ],
       "blocked_by": [],
       "description": "Implement and verify package architecture, tooling and licenses according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
@@ -113,8 +114,18 @@
         "focused automated tests with positive, negative and unknown fixtures",
         "review graph evidence and stable output where applicable"
       ],
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        ".venv/bin/pytest -ra -q -> 215 passed, 2 skipped, 1 xfailed",
+        "make check x2 -> exit 0, 96.14% branch coverage",
+        "iCloud: .pth hidden=True at t=+5.1s after make install; import fails from /private/tmp; editable install into venv outside iCloud works",
+        ".venv/bin/pytest -q -rsxX -> 248 passed, 1 skipped, 1 xfailed",
+        "mypy --strict src tests scripts -> 15 files clean; ruff check/format clean; make check -> exit 0, 96.14% branch",
+        "make install (.venv under iCloud) -> exit 2 with iCloud cause; make VENV=<scratch> install -> exit 0, code-analysis --version works from /private/tmp",
+        "make build offline -> wheel entries == 13 src files, no cli/main.py; stale-probe assertion fails on planted file",
+        "make check -> exit 0; 248 passed/1 skipped/1 xfailed; cov 96.14%",
+        "mutations M1-M9 in scratchpad copy each -> 1 failed"
+      ],
+      "notes": "Verified 2026-11-13 (attempt 2): tester PASS 248 passed/1 skipped/1 xfailed, make check 96.14% branch; reviewer APPROVE. Editable install is unusable on this host while repo/venv live under iCloud Drive (D-0040, Q14 needs_user); tests never depend on it (pythonpath=src). Project license undecided (Q13/D-0037). Low follow-ups carried as progress.json issues #13-#18 (D-0040 scope list + make exit code wording, check_install message, wheel test stray files, runtime license cross-check for T016, TimeoutExpired)."
     },
     {
       "id": "T004",
@@ -940,7 +951,7 @@
       "id": "T031",
       "title": "Architecture, user and limitation documentation",
       "phase": "P5",
-      "status": "pending",
+      "status": "blocked",
       "depends_on": [
         "T026",
         "T021"
@@ -953,7 +964,9 @@
         "AC-12"
       ],
       "open_questions": [],
-      "blocked_by": [],
+      "blocked_by": [
+        "Q13"
+      ],
       "description": "Implement and verify architecture, user and limitation documentation according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
       "deliverables": [
         "tests/test_t031.py",
@@ -970,7 +983,7 @@
       "id": "T032",
       "title": "Traceability and decision log audit",
       "phase": "P5",
-      "status": "pending",
+      "status": "blocked",
       "depends_on": [
         "T030",
         "T031"
@@ -982,7 +995,9 @@
         "AC-12"
       ],
       "open_questions": [],
-      "blocked_by": [],
+      "blocked_by": [
+        "Q13"
+      ],
       "description": "Implement and verify traceability and decision log audit according to SPEC.md; record material decisions and uncertainty in DECISIONS.md.",
       "deliverables": [
         "tests/test_t032.py",

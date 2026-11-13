@@ -1,6 +1,7 @@
 """Safe, deterministic directory walk (SPEC section 6 step 1).
 
-Decisions: D-0015, D-0021, D-0022, D-0025 (symlinks), D-0026 (descriptor-relative traversal).
+Decisions: D-0015, D-0021, D-0022, D-0025 (symlinks), D-0026 (descriptor-relative traversal),
+D-0038 (``O_BINARY``), D-0039 (wording of the symlink and fallback-mode guarantees).
 
 Safety mechanics, in order of appearance:
 
@@ -10,9 +11,11 @@ Safety mechanics, in order of appearance:
   swapped for a symlink after it was classified is refused (``ELOOP``/``ENOTDIR``), never
   followed.  At most ``max_depth + 1`` descriptors are open at once.
 * A symlink is first matched against the exclusion patterns (nothing is resolved for an
-  excluded link), then classified by ``os.path.realpath`` (reads link metadata only).
-  Targets outside the root are rejected before any ``stat``; in-root *directory* links are
-  never traversed (D-0025), so canonical paths never depend on links.
+  excluded link), then classified by ``os.path.realpath``, which performs only
+  ``lstat``/``readlink`` metadata calls on the path components and whose result does not
+  depend on whether the target exists.  Targets outside the root are rejected before
+  anything is opened or ``stat``-ed through the link; in-root *directory* links are never
+  traversed (D-0025), so canonical paths never depend on links.
 * Non-regular files (FIFOs, sockets, devices) are rejected before any ``open`` so the
   walk cannot block on them.
 * Files are opened with ``O_NOFOLLOW`` (``dir_fd``-relative) and re-checked with
@@ -21,7 +24,9 @@ Safety mechanics, in order of appearance:
 * The walk never calls ``exec``/``eval``/``compile``/``importlib``/``subprocess``.
 
 On platforms without ``dir_fd`` support (``_FD_TRAVERSAL`` false) the same algorithm runs
-on absolute paths; the final-component ``O_NOFOLLOW`` protection still applies.
+on absolute paths and has **no directory-swap protection**: a directory replaced by a
+symlink after it was classified is listed through the link.  Only the final-component
+``O_NOFOLLOW`` check on files remains (known limitation, T029; D-0039).
 
 Determinism: directory entries are processed in sorted name order, roots in
 configured order, and the final result is sorted again by canonical path, so the
@@ -57,7 +62,8 @@ __all__ = ["discover"]
 _CHUNK_SIZE: Final = 64 * 1024
 _O_NOFOLLOW: Final = getattr(os, "O_NOFOLLOW", 0)
 _O_CLOEXEC: Final = getattr(os, "O_CLOEXEC", 0)
-_OPEN_FLAGS: Final = os.O_RDONLY | _O_NOFOLLOW | _O_CLOEXEC
+_O_BINARY: Final = getattr(os, "O_BINARY", 0)  # Windows: raw bytes, no newline translation (D-0038)
+_OPEN_FLAGS: Final = os.O_RDONLY | _O_NOFOLLOW | _O_CLOEXEC | _O_BINARY
 _DIR_FLAGS: Final = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | _O_NOFOLLOW | _O_CLOEXEC
 _ROOT_PATH: Final = "."
 _MISSING_ERRNOS: Final = frozenset({errno.ENOENT, errno.ENOTDIR, errno.ELOOP})
@@ -478,7 +484,9 @@ class _RootWalker:
                 f"symlink excluded by pattern {matched.source!r}; target not resolved",
             )
             return
-        # realpath reads link metadata only; it never opens or stats the final target.
+        # realpath performs only lstat/readlink metadata calls on the path components; its
+        # result does not depend on whether the target exists, and nothing is opened or
+        # stat-ed through the link before the within-root check below (D-0039).
         target_real = os.path.realpath(os.path.join(frame.abs_path, entry.name))
         if not _is_within(self.root_real, target_real):
             self._diag(

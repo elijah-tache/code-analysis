@@ -24,6 +24,7 @@ Commands (``--help`` on each for details):
     reopen TASK --reason R          Back to pending (e.g. unverified 'done').
     checkpoint --note N
     issue TEXT                      Add an outstanding issue.
+    issue-close N --resolution R    Mark issue N resolved.
     approval request TEXT | approval resolve N --granted|--denied [--note N]
     config [KEY VALUE]              Show or set a config value (JSON-parsed).
 
@@ -664,6 +665,17 @@ def cmd_issue(a: argparse.Namespace) -> None:
     print(f"issue #{len(p['open_issues']) - 1} recorded")
 
 
+def cmd_issue_close(a: argparse.Namespace) -> None:
+    p = load_progress()
+    try:
+        item = p["open_issues"][a.index]
+    except IndexError:
+        die("unknown issue index")
+    item["closed_at"], item["resolution"] = now(), a.resolution
+    save_progress(p)
+    print(f"issue #{a.index} closed")
+
+
 def cmd_approval(a: argparse.Namespace) -> None:
     p = load_progress()
     if a.action == "request":
@@ -716,6 +728,8 @@ def main() -> None:
     s = sp.add_parser("reopen"); s.add_argument("task"); s.add_argument("--reason", required=True); s.set_defaults(fn=cmd_reopen)
     s = sp.add_parser("checkpoint"); s.add_argument("--note", required=True); s.set_defaults(fn=cmd_checkpoint)
     s = sp.add_parser("issue"); s.add_argument("text"); s.add_argument("--task"); s.set_defaults(fn=cmd_issue)
+    s = sp.add_parser("issue-close"); s.add_argument("index", type=int); s.add_argument("--resolution", required=True)
+    s.set_defaults(fn=cmd_issue_close)
     s = sp.add_parser("approval"); s.add_argument("action", choices=["request", "resolve"]); s.add_argument("text")
     g = s.add_mutually_exclusive_group(); g.add_argument("--granted", action="store_true"); g.add_argument("--denied", action="store_true")
     s.add_argument("--note"); s.set_defaults(fn=cmd_approval)

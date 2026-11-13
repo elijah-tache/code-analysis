@@ -2,7 +2,7 @@
   "schema_version": 1,
   "project": "code-impact-migration-stage1",
   "created_at": "2026-11-12T19:38:55+00:00",
-  "updated_at": "2026-11-12T20:36:54+00:00",
+  "updated_at": "2026-11-13T02:15:00+00:00",
   "config": {
     "base_branch": "dev",
     "work_branch": null,
@@ -108,15 +108,83 @@
       "completed_at": null
     },
     "T003": {
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 2,
       "stage": null,
       "blocked_reason": null,
       "blocking_questions": [],
-      "commits": [],
-      "evidence": [],
-      "history": [],
-      "completed_at": null
+      "commits": [
+        "f892180e106047d229bcaa254afa300979599720",
+        "b103b2a53b9e0ae1b34556a0647bb7c03f79b9fa"
+      ],
+      "evidence": [
+        ".venv/bin/pytest -ra -q -> 215 passed, 2 skipped, 1 xfailed",
+        "make check x2 -> exit 0, 96.14% branch coverage",
+        "iCloud: .pth hidden=True at t=+5.1s after make install; import fails from /private/tmp; editable install into venv outside iCloud works",
+        ".venv/bin/pytest -q -rsxX -> 248 passed, 1 skipped, 1 xfailed",
+        "mypy --strict src tests scripts -> 15 files clean; ruff check/format clean; make check -> exit 0, 96.14% branch",
+        "make install (.venv under iCloud) -> exit 2 with iCloud cause; make VENV=<scratch> install -> exit 0, code-analysis --version works from /private/tmp",
+        "make build offline -> wheel entries == 13 src files, no cli/main.py; stale-probe assertion fails on planted file",
+        "make check -> exit 0; 248 passed/1 skipped/1 xfailed; cov 96.14%",
+        "mutations M1-M9 in scratchpad copy each -> 1 failed"
+      ],
+      "history": [
+        {
+          "at": "2026-11-12T21:05:06+00:00",
+          "kind": "developer",
+          "verdict": "COMPLETE",
+          "summary": "Layered architecture + AST-enforced import rules, zero runtime deps with machine-checked license table, tooling finalized (ruff families, pytest-cov 90%, Makefile), dynamic version, CLI stub, D-0028..D-0039 (D-0037 license needs-user), T001 follow-ups applied; dev-reported 215 passed/2 skipped/1 xfailed, cov 96.14%",
+          "evidence": []
+        },
+        {
+          "at": "2026-11-12T21:15:39+00:00",
+          "kind": "tester",
+          "verdict": "FAIL",
+          "summary": "F1 high: make install fix not durable; iCloud Drive re-hides .pth within ~5s so editable import/console script fail; D-0030 root cause wrong (pip blamed). F2 medium: stale build/lib/code_analysis/cli/main.py ships in wheels. Everything else verified: 215 passed/2 skipped/1 xfailed strict, mypy/ruff/make check clean, 96.14% cov, 21/21 mutations caught, T001 follow-ups confirmed",
+          "evidence": [
+            ".venv/bin/pytest -ra -q -> 215 passed, 2 skipped, 1 xfailed",
+            "make check x2 -> exit 0, 96.14% branch coverage",
+            "iCloud: .pth hidden=True at t=+5.1s after make install; import fails from /private/tmp; editable install into venv outside iCloud works"
+          ]
+        },
+        {
+          "at": "2026-11-12T21:15:39+00:00",
+          "kind": "reviewer",
+          "verdict": "NOTE",
+          "summary": "Reviewer run terminated by API rate limit (resets 02:20 Asia/Jerusalem); no verdict; must be re-run",
+          "evidence": []
+        },
+        {
+          "at": "2026-11-13T00:38:05+00:00",
+          "kind": "developer",
+          "verdict": "COMPLETE",
+          "summary": "Fix round attempt 2: D-0040 corrects root cause (iCloud re-hides .pth), chflags removed, make install verifies via scripts/check_install.py and fails honestly; stale build/ deleted, clean-build prerequisite, offline wheel-contents test (D-0041), pip>=25.1 upgrade (D-0042); Q14 added (needs_user, blocks nothing). Dev-reported 248 passed/1 skipped/1 xfailed, cov 96.14%, make check exit 0",
+          "evidence": []
+        },
+        {
+          "at": "2026-11-13T00:43:24+00:00",
+          "kind": "tester",
+          "verdict": "PASS",
+          "summary": "Attempt 2 PASS: F1/F2 fixed and re-verified; make install fails honestly on iCloud host (script exit 1, make exit 2), works with VENV outside iCloud; wheel-contents test catches injected stale module; 2 low notes (D-0040 says make exits 1 vs actual 2; check_install hidden-.pth message over-claims before iCloud re-hides)",
+          "evidence": [
+            ".venv/bin/pytest -q -rsxX -> 248 passed, 1 skipped, 1 xfailed",
+            "mypy --strict src tests scripts -> 15 files clean; ruff check/format clean; make check -> exit 0, 96.14% branch",
+            "make install (.venv under iCloud) -> exit 2 with iCloud cause; make VENV=<scratch> install -> exit 0, code-analysis --version works from /private/tmp",
+            "make build offline -> wheel entries == 13 src files, no cli/main.py; stale-probe assertion fails on planted file"
+          ]
+        },
+        {
+          "at": "2026-11-13T02:14:04+00:00",
+          "kind": "reviewer",
+          "verdict": "APPROVE",
+          "summary": "APPROVE: AC-12/R12 met; D-0028..D-0042 complete and append-only; D-0037 not implemented; architecture/dependency/license tests verified by 9 mutations; 5 low + 2 nit findings (D-0040 scope list, make exit 2 wording, check_install message, wheel test stray files, license family check, TimeoutExpired, R5 collection-time failure)",
+          "evidence": [
+            "make check -> exit 0; 248 passed/1 skipped/1 xfailed; cov 96.14%",
+            "mutations M1-M9 in scratchpad copy each -> 1 failed"
+          ]
+        }
+      ],
+      "completed_at": "2026-11-13T02:14:36+00:00"
     },
     "T004": {
       "status": "pending",
@@ -416,22 +484,26 @@
       "completed_at": null
     },
     "T031": {
-      "status": "pending",
+      "status": "blocked",
       "attempts": 0,
       "stage": null,
-      "blocked_reason": null,
-      "blocking_questions": [],
+      "blocked_reason": "unresolved question(s) Q13",
+      "blocking_questions": [
+        "Q13"
+      ],
       "commits": [],
       "evidence": [],
       "history": [],
       "completed_at": null
     },
     "T032": {
-      "status": "pending",
+      "status": "blocked",
       "attempts": 0,
       "stage": null,
-      "blocked_reason": null,
-      "blocking_questions": [],
+      "blocked_reason": "unresolved question(s) Q13",
+      "blocking_questions": [
+        "Q13"
+      ],
       "commits": [],
       "evidence": [],
       "history": [],
@@ -450,17 +522,35 @@
     }
   },
   "completed": [
-    "T001"
+    "T001",
+    "T003"
   ],
-  "blocked": [],
+  "blocked": [
+    {
+      "task": "T031",
+      "reasons": [
+        "unresolved question(s) Q13"
+      ],
+      "questions": [
+        "Q13"
+      ]
+    },
+    {
+      "task": "T032",
+      "reasons": [
+        "unresolved question(s) Q13"
+      ],
+      "questions": [
+        "Q13"
+      ]
+    }
+  ],
   "ready": [
     "T002",
-    "T003",
     "T004"
   ],
   "outstanding": [
     "T002",
-    "T003",
     "T004",
     "T005",
     "T006",
@@ -511,12 +601,16 @@
     {
       "at": "2026-11-12T20:35:25+00:00",
       "text": "T001 reviewer R1 [medium]: fallback _OPEN_FLAGS lacks O_BINARY -> Windows text-mode reads would break raw-byte sha256 (walk.py:58-61); add getattr(os,'O_BINARY',0); verify in T030 Windows CI",
-      "task": "T001"
+      "task": "T001",
+      "closed_at": "2026-11-12T21:15:39+00:00",
+      "resolution": "Addressed in T003 (D-0038/D-0039), confirmed by tester"
     },
     {
       "at": "2026-11-12T20:35:26+00:00",
       "text": "T001 reviewer R2 [low]: 'never stat-ed' wording overstated: realpath lstats outside components (walk.py:481, docs 72-73, D-0025); reword; test records os.stat not os.lstat",
-      "task": "T001"
+      "task": "T001",
+      "closed_at": "2026-11-12T21:15:39+00:00",
+      "resolution": "Addressed in T003 (D-0038/D-0039), confirmed by tester"
     },
     {
       "at": "2026-11-12T20:35:26+00:00",
@@ -531,7 +625,9 @@
     {
       "at": "2026-11-12T20:35:26+00:00",
       "text": "T001 reviewer R5 [low]: stale D-0020 references in config.py:1,76,161 and tests/test_t001.py:4,473 -> cite D-0025/D-0026",
-      "task": "T001"
+      "task": "T001",
+      "closed_at": "2026-11-12T21:15:39+00:00",
+      "resolution": "Addressed in T003 (D-0038/D-0039), confirmed by tester"
     },
     {
       "at": "2026-11-12T20:35:26+00:00",
@@ -541,16 +637,55 @@
     {
       "at": "2026-11-12T20:36:36+00:00",
       "text": "T001 tester F1 [medium]: docs/safety-policy.md:72-73, D-0025, walk.py:13,481 claim outside target 'never stat-ed'; realpath lstats every component. Reword + record os.lstat in test_dangling_link_to_outside_is_reported_as_escape",
-      "task": "T001"
+      "task": "T001",
+      "closed_at": "2026-11-12T21:15:39+00:00",
+      "resolution": "Addressed in T003 (D-0038/D-0039), confirmed by tester"
     },
     {
       "at": "2026-11-12T20:36:36+00:00",
       "text": "T001 tester F2 [low]: fallback (_FD_TRAVERSAL=False) mode has no directory-swap protection; walk.py:23-24 and docs 98-100 should say so plainly (T029)",
-      "task": "T001"
+      "task": "T001",
+      "closed_at": "2026-11-12T21:15:39+00:00",
+      "resolution": "Addressed in T003 (D-0038/D-0039), confirmed by tester"
     },
     {
       "at": "2026-11-12T20:36:36+00:00",
       "text": "Env: CPython 3.12.3 skips hidden __editable__*.pth so 'pip install -e .' is inert; tests run via pytest pythonpath=src. T003: note in README/D-0017 or upgrade venv interpreter",
+      "task": "T003"
+    },
+    {
+      "at": "2026-11-12T21:15:39+00:00",
+      "text": "ENV [high]: repository is under iCloud-synced Desktop; the sync daemon sets UF_HIDDEN on every dot-path (.git, .venv/**/*.pth, .gitignore). Breaks editable installs on CPython 3.12.3 and risks .git/.venv corruption via sync. Recommend moving repo (or at least .venv) outside iCloud (e.g. ~/code/code-analysis) or excluding it (.nosync). Needs user.",
+      "task": "T003"
+    },
+    {
+      "at": "2026-11-13T02:14:13+00:00",
+      "text": "[low] Reviewer R1: D-0040 does not enumerate tooling-scope changes (scripts/ location, pytest pythonpath += scripts, mypy/ruff scope, per-file-ignores scripts/* T20/S603, coverage exclude_also); append clarifying entry",
+      "task": "T003"
+    },
+    {
+      "at": "2026-11-13T02:14:14+00:00",
+      "text": "[low] Reviewer R2 / tester F1-low: D-0040 says make install exits 1; make exits 2 (recipe step exits 1). Append-only correction in a future entry",
+      "task": "T003"
+    },
+    {
+      "at": "2026-11-13T02:14:14+00:00",
+      "text": "[low] Reviewer R3 / tester F2-low: scripts/check_install.py assess() says 'editable install is inert' whenever any .pth is hidden; reword or mark only __editable__*.pth decisive",
+      "task": "T003"
+    },
+    {
+      "at": "2026-11-13T02:14:14+00:00",
+      "text": "[low] Reviewer R4: TestWheelContents treats stray non-.py files in src/code_analysis (e.g. .DS_Store) as missing from wheel; exclude OS/editor artefacts or assert on *.py + py.typed",
+      "task": "T003"
+    },
+    {
+      "at": "2026-11-13T02:14:14+00:00",
+      "text": "[low] Reviewer R5: license cross-check is family-level and omits the Runtime table; add Runtime section to parametrisation and check installed License-Expression against ALLOWED_LICENSES (needed when T016 adds packaging)",
+      "task": "T003"
+    },
+    {
+      "at": "2026-11-13T02:14:14+00:00",
+      "text": "[nit] Reviewer R6: check_install.import_location does not catch subprocess.TimeoutExpired; R7: R5 third-party-import test only fails at collection time",
       "task": "T003"
     }
   ],
@@ -568,19 +703,32 @@
       "state": "granted",
       "note": "user: git remote allowed",
       "resolved_at": "2026-11-12T19:48:40+00:00"
+    },
+    {
+      "at": "2026-11-12T21:15:39+00:00",
+      "text": "Move the repository out of the iCloud-synced Desktop folder (or place .venv outside it / mark .nosync). iCloud re-hides dot-paths and may sync .git/.venv; it broke T003's editable install fix. Without this, 'pip install -e .' cannot be made durable on this host.",
+      "state": "requested",
+      "note": null
     }
   ],
   "warnings": [],
   "last_checkpoint": {
-    "at": "2026-11-12T20:36:54+00:00",
+    "at": "2026-11-13T02:15:00+00:00",
     "task": null,
-    "commit": "1b071c336696b0d2bdf5e2872a2219f212e2331b",
-    "note": "T001 merged into dev"
+    "commit": "f892180e106047d229bcaa254afa300979599720",
+    "note": "T003 verified (tester PASS, reviewer APPROVE), committed b103b2a, merged --no-ff into dev; next T002 then T004"
   },
-  "last_reconciled_at": "2026-11-12T20:36:54+00:00",
-  "question_impact": {},
+  "last_reconciled_at": "2026-11-13T02:15:00+00:00",
+  "question_impact": {
+    "Q13": [
+      "T031",
+      "T032",
+      "T033"
+    ],
+    "Q14": []
+  },
   "git": {
     "branch": "dev",
-    "head": "1b071c336696b0d2bdf5e2872a2219f212e2331b"
+    "head": "f892180e106047d229bcaa254afa300979599720"
   }
 }
